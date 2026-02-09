@@ -13,29 +13,12 @@
 
 \typeout{NT FILE abstract-pt.tex}%
 
-Independentemente da língua em que a dissertação está escrita, geralmente esta contém pelo menos dois resumos: um resumo na mesma língua do texto principal e outro resumo numa outra língua.
+Uma das principais ameaças a sistemas de anonimato como o Tor é o denominado Sybil attack, em que o atacante personifica várias identidades para uma só entidade. Para resolver esta ameaça, eu proponho o Dittor, um esquema de credenciais anónimo e resistente a Sybil attacks. 
 
-A ordem dos resumos varia de acordo com a escola. Se a sua escola tiver regulamentos específicos sobre a ordem dos resumos, o template (\LaTeX) \gls{novathesis} irá respeitá-los. Caso contrário, a regra padrão no template \gls{novathesis} é ter em primeiro lugar o resumo \emph{no mesmo idioma do texto principal} e depois o resumo \emph{no outro idioma}. Por exemplo, se a dissertação for escrita em português, a ordem dos resumos será primeiro o português e depois o inglês, seguido do texto principal em português. Se a dissertação for escrita em inglês, a ordem dos resumos será primeiro em inglês e depois em português, seguida do texto principal em inglês.
-%
-No entanto, esse pedido pode ser personalizado adicionando um dos seguintes ao arquivo \verb+5_packages.tex+.
+O Dittor faz recurso a credenciais aprovadas por entidades externas para validação da identidade única de um operador de nó de rede do Tor, de forma anónima. Este sistema de credenciais não permite que haja mais do que uma identidade para um só operador de nó, mitigando assim possíveis Sybil attacks. Enquanto tentativas anteriores procuravam a identificação de nós sybil na rede Tor para mitigação, o Dittor resolve o problema de forma fundamental, associando credenciais anónimas, que validam a identidade do sujeito, a um pseudónimo, que é então usado como identificador na rede do Tor para agrupar os nós de uma entidade numa só ligação, sem revelar a identidade do mesmo. Para atingir este fim, mecanismos como Sybil-resilient Anonymous Signatures e Zero-Knowledge Proofs são usados para a construção de um sistema de Self-Sovereign Identity, culminando num sistema de Sybil-resilient Anonymous Signatures with Stateless Issuing.
 
-\begin{verbatim}
-    \abstractorder(<MAIN_LANG>):={<LANG_1>,...,<LANG_N>}
-\end{verbatim}
+Eu proponho um método de trabalho de nove meses, envolvendo fases de pesquisa e desenvolvimento, com um gráfico temporal para simplificação dos objetivos.
 
-Por exemplo, para um documento escrito em Alemão com resumos em Alemão, Inglês e Italiano (por esta ordem), pode usar-se:
-\begin{verbatim}
-    \ntsetup{abstractorder={de={de,en,it}}}
-\end{verbatim}
-
-Relativamente ao seu conteúdo, os resumos não devem ultrapassar uma página e frequentemente tentam responder às seguintes questões (é imprescindível a adaptação às práticas habituais da sua área científica):
-
-\begin{enumerate}
-  \item Qual é o problema?
-  \item Porque é que é um problema interessante/desafiante?
-  \item Qual é a proposta de abordagem/solução?
-  \item Quais são as consequências/resultados da solução proposta?
-\end{enumerate}
 
 % E agora vamos fazer um teste com uma quebra de linha no hífen a ver se a \LaTeX\ duplica o hífen na linha seguinte se usarmos \verb+"-+… em vez de \verb+-+.
 %
@@ -48,9 +31,9 @@ Relativamente ao seu conteúdo, os resumos não devem ultrapassar uma página e 
 % Palavra-chave 1, Palavra-chave 2, Palavra-chave 3, Palavra-chave 4
 % \end{keywords}
 \keywords{
-  Primeira palavra-chave \and
-  Outra palavra-chave \and
-  Mais uma palavra-chave \and
-  A última palavra-chave
+  Tor \and
+  Sybil \and
+  Identificadores Descentralizados \and
+  Autonomia de Identidade
 }
 % to add an extra black line

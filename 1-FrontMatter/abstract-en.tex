@@ -8,36 +8,16 @@
 
 \typeout{NT FILE abstract-en.tex}%
 
-Regardless of the language in which the dissertation is written, usually there are at least two abstracts: one abstract in the same language as the main text, and another abstract in some other language.
+One of the main threats to anonymity systems such as Tor is the so-called Sybil attack, in which the attacker impersonates multiple identities for a single entity. To address this threat, I propose Dittor, an anonymous credential scheme that is resistant to Sybil attacks. 
 
-The abstracts' order varies with the school.  If your school has specific regulations concerning the abstracts' order, the \gls{novathesis} (\LaTeX) template will respect them.  Otherwise, the default rule in the \gls{novathesis} template is to have in first place the abstract in \emph{the same language as main text}, and then the abstract in \emph{the other language}. For example, if the dissertation is written in Portuguese, the abstracts' order will be first Portuguese and then English, followed by the main text in Portuguese. If the dissertation is written in English, the abstracts' order will be first English and then Portuguese, followed by the main text in English.
-%
-However, this order can be customized by adding one of the following to the file \verb+5_packages.tex+.
+Dittor uses credentials approved by external entities to validate the unique identity of a Tor network node operator anonymously. This credential system does not allow more than one identity for a single node operator, thus mitigating possible Sybil attacks. While previous attempts sought to identify Sybil nodes in the Tor network for mitigation, Dittor solves the problem fundamentally by associating anonymous credentials, which validate the subject's identity, with a pseudonym, which is then used as an identifier in the Tor network to group an entity's nodes into a single connection without revealing its identity. To achieve this end, mechanisms such as Sybil-resilient Anonymous Signatures and Zero-Knowledge Proofs are used to build a Self-Sovereign Identity system, culminating in a Sybil-resilient Anonymous Signatures with Stateless Issuing system.
 
-\begin{verbatim}
-    \ntsetup{abstractorder={<LANG_1>,...,<LANG_N>}}
-    \ntsetup{abstractorder={<MAIN_LANG>={<LANG_1>,...,<LANG_N>}}}
-\end{verbatim}
-
-For example, for a main document written in German with abstracts written in German, English and Italian (by this order) use:
-\begin{verbatim}
-    \ntsetup{abstractorder={de={de,en,it}}}
-\end{verbatim}
-
-Concerning its contents, the abstracts should not exceed one page and may answer the following questions (it is essential to adapt to the usual practices of your scientific area):
-
-\begin{enumerate}
-  \item What is the problem?
-  \item Why is this problem interesting/challenging?
-  \item What is the proposed approach/solution/contribution?
-  \item What results (implications/consequences) from the solution?
-\end{enumerate}
+I propose a nine-month working method, involving research and development phases, with a timeline for simplifying the objectives.
 
 % Abstract keywords
 \keywords{
-  One keyword \and
-  Another keyword \and
-  Yet another keyword \and
-  One keyword more \and
-  The last keyword
+  Tor \and
+  Sybil \and
+  Decentralized Identifiers \and
+  Self-Sovereign Identity
 }
