@@ -8,47 +8,86 @@
 
 \typeout{NT FILE chapter4.tex}%
 
-\chapter{Adding Support to a New School (work in progress)}
-\label{cha:porting_novathesis}
+\chapter{Dittor - Anonymous and Sybil-Resilient Credential Scheme for Tor}
+\label{cha:dittor}
 
-My advice to customize the \novathesis\ template to another School/University/Department/Degree is to browse the existing supported degrees to find one that is \emph{close enough}, and depart from there!
+O \textit{Dittor} é um esquema de credenciais descentralizado e resistente a \textit{sybils} que permite \textit{selective disclosure} de atributos de forma confidencial, anónima e \textit{unlinkable}, mesmo que uma das entidades emissoras de credenciais seja maliciosa, para ser incorporado no Tor. Inicialmente, surge da necessidade de prevenção de \textit{Sybil attacks} no Tor, motivado pelas técnicas demonstradas anteriormente e culminando num paradigma diferente para a mitigação deste tipo de ataque: ao invés de mecanismos para identificar possíveis \textit{sybils} na rede, é criado um sistema de credenciais que não permite que exista mais do que uma credencial para um dado pseudónimo de um utilizador. 
 
-The multitude of layouts supported by the \novathesis\ template is based in a three-tier naming scheme, separated by slashes: University / School / Department-or-Degree.  This three-tier naming scheme is also reflected in a three-tier directory (folder) structure in: \verb!<project_root>a/NOVAthesiFiles/Schools/…!.  For example:
+O \textit{Nym} projeta uma adaptação do \textit{Coconut} integrada com as \textit{Nym credentials} para que os seus utilizadores possam interagir com o sistema de forma verificada e anónima, enquanto o \textit{Dittor} surge como um esquema para acreditação dos \textit{relay operators}, de modo a que um utilizador voluntário que queira correr um nó na rede Tor terá que passar por este processo de validação de identidade para o poder fazer, garantindo uma ligação entre uma entidade e identidade única e exclusiva. A partir da credencial fornecida, este utilizador pode comunicar com as \textit{Directory Authorities} para assumir o controlo sobre um nó na rede.
 
-\begin{verbatim}
-…
-| 
-+—— nova
-|   +—— Images
-|   +—— fct
-|   |   \—— Images
-|   +—— ims
-|   |   \—— Images
-|   …
-|   
-\—— uminho
-    +—— Images
-    +—— ea
-    |   \—— Images
-    +—— ec
-    |   \—— Images
-    …
-\end{verbatim}
+Como o Tor preza acima de tudo a sua privacidade, surge a necessidade de criação de um sistema de autenticação descentralizado, de forma a que: a privacidade dos utilizadores não possa ser violada por uma entidade; não exista ligação possível entre a verificação e a entidade emissora, nem entre o requerente e o pedido; não exista ligação entre o utilizador e as suas credenciais, culminando num processo \textit{Zero-Knowledge} para todas as entidades participantes no sistema, incluindo as \textit{Directory Authorities}, e permitindo uma ligação entre os nós que uma entidade corre com uma identidade. O esquema de acreditação usado no \textit{Dittor} assemelha-se muito ao \textit{Coconut}, mais especificamente nestas propriedades, mas muda os mecanismos e acrescenta uma camada de proteção contra \textit{Sybil attacks}.
 
-The directory \verb!uminho! contains the customization for all Schools of Universidade do Minho.  This university is an example of the case where the regulations are defined at University level and all the schools apply the same thesis layout and organization.  So, the all the customization is done in the file \verb!uminho/uminho-defaults.ldf!, except the definition of the name and logo of each individual school.
+\section{Propriedades}
+\label{sec:dittor_propriedades}
 
-As another example, the directory \verb!nova! contains the customization for all Schools from NOVA University Lisbon. This university grants a lot of freedom in the definition of the thesis layouts.  In some cases, they are defined at the School level (e.g., NOVA FCT), while is some other cases they are defined separately for each degree (e.g., NOVA IMS).
+Antes de avançar para as mudanças técnicas, é necessário definir o objetivo do \textit{Dittor}. Para isto, associa-se um conjunto de propriedades que devem ser mantidas ao longo de toda a implementação deste projeto, que em muito se baseiam nas propriedades do \textit{Coconut} \cite{sonnino2018coconut}:
 
+\begin{itemize}
+    \item \textit{\textbf{Threshold authorities:}} É apenas necessário um subconjunto do conjunto de autoridades emissoras de certificados para criação de certificados parciais para o utilizador, onde para um número \textit{t} de autoridades, a emissão dos certificados tem complexidade temporal \textit{O(t)};
+    \item \textit{\textbf{Blind issuance and Unlinkability:}} Existe uma modalidade de \textit{Zero-Knowledge} no processo de emissão das credenciais, em que as entidades responsáveis por fazê-lo não aprendem nenhuma informação relativa ao requerente. Para além disto, os certificados emitidos são \textit{unlinkable} entre eles, mesmo que todas as entidades participem num ataque;
+    \item \textit{\textbf{Non-interactivity:}} As autoridades emissoras de certificados podem operar de forma independente entre elas, de forma a que não seja necessário nenhuma sincronização para a emissão de certificados;
+    \item \textit{\textbf{Liveness:}} Esta propriedade relaciona-se com a primeira, visto que é suficiente que um \textit{threshold} de entidades emissoras de certificados se mantenham honestas para que o sistema continue em funcionamento;
+    \item \textit{\textbf{Efficiency:}} Apesar de todas as propriedades de segurança, é necessário garantir que haja uma \textit{performance} adequada às expectativas dos utilizadores, de forma a que se torne num modelo útil para o dia-a-dia. Para que isto aconteça, é fulcral que as primitivas criptográficas e as provas de \textit{Zero-Knowledge} tenham um protocolo eficiente para todos os passos do \textit{Coconut}, de forma a que a complexidade temporal de \textit{O(1)} deste esquema se mantenha nesta adaptação;
+    \item \textit{\textbf{Short Credentials:}} O número de elementos da credencial tem de ser independente do número de atributos nela contidos, para mitigar qualquer \textit{traffic correlation} que permita a associação entre credenciais, deanonimizando o requerente;
+    \item \textit{\textbf{Sybil-Resilient:}} Esta propriedade é inovadora relativamente ao \textit{Coconut}, e visa a proteção contra \textit{Sybil attacks} da rede Tor, que é o objetivo deste projeto. Para que o leitor possa entender melhor o mecanismo de proteção, é necessário explicar este tópico com mais profundidade.
+\end{itemize}
 
+\section{Mitigação de Sybil Attacks}
+\label{sec:dittor_sybil}
 
+Apesar do esquema do \textit{Coconut} basear-se na validação de uma prova de \textit{Zero-Knowledge} sobre a satisfação de um predicado sobre um atributo para emissão de uma credencial \cite{sonnino2018coconut}, não existe nenhuma verificação sobre o requerente que previna que este assuma diferentes identidades para a mesma prova. Seria possível guardar um tipo de \textit{distributed ledger} com a informação sobre os requerentes e as \textit{Zero-Knowledge Proofs} fornecidas que os conectassem para impedir a reutilização das mesmas provas para diferentes identidades, de forma a ser conhecimento público entre as entidades emissoras de certificados, contudo isto revelaria problemas de segurança relativos à \textit{unlinkability} entre os certificados emitidos e os utilizadores que, mesmo que a informação fosse privada para as autoridades confiadas do Tor, poderia ser alvo de ataques e suscetível a fuga de dados. Para isto, surge uma mudança no esquema do \textit{Coconut} na validação das credenciais dos requerentes por parte das entidades emissoras, de forma a impedir que uma entidade possa assumir diferentes identidades.
+
+\subsection{SyRA}
+\label{sec:syra}
+
+Em 2025, surgem as assinaturas \textit{SyRA (Sybil-resilient anonymous)}, que permitem assinaturas digitais assegurando \textit{threshold issuance}, \textit{unforgeability} (que impede que sejam forjadas assinaturas por utilizadores que não sejam o próprio), \textit{Sybil resilience}, preservação de privacidade e \textit{unlinkability} \cite{crites2025syra}. Estas assinaturas são usadas de forma a complementar uma \textit{verifiable credential} da identidade real do sujeito, que pode ser obtida a partir de qualquer identificador legal (como o Cartão de Cidadão português), biométrico (como a impressão digital) ou a partir de qualquer método legal capaz de identificação como o OAuth \cite{recordon2006openid}, por exemplo, com o objetivo de alta compatibilidade com qualquer entidade legal para emissão destas credenciais. Estas entidades responsabilizam-se por garantir que o certificado gerado pelas mesmas é válido e dentro dos moldes legais, garantindo que não existe mais do que uma identidade para o mesmo certificado, isto é, não existem dois sujeitos com o mesmo identificador civil, por exemplo. As assinaturas \textit{SyRA} são usadas com estas credenciais de forma a gerar um pseudónimos para cada contexto, ou seja para cada entidade legal emissora das credenciais, de forma a que não seja possível retirar informação que correlacione a identidade do utilizador com os pseudónimos, mesmo que todas sejam maliciosas. Estes pseudónimos são derivados da identidade única do utilizador, que quando associados com a chave pública da entidade responsável pela \textit{verifiable credential}, é criado um identificador deste utilizador para ser usado num sistema. É importante notar que o pseudónimo criado com cada entidade mantém-se igual independentemente do número de certificados emitidos, garantindo que o utilizador não se personifica por diferentes identidades. De seguida, observamos as diferentes fases para este modelo, que contemplam os passos para obter uma assinatura \textit{SyRA}.
+
+A fase de \textbf{geração de chaves} engloba a verificação que cada conjunto de entidades emissoras de credenciais consegue inicializar a sua instância da assinatura \textit{SyRA}. Após receção de todas as confirmações de todas as entidades de cada conjunto, o requerente assina a assinatura \textit{SyRA} com uma chave de verificação, que fica guardada nesta.
+
+A \textbf{emissão limitada de credenciais} inicia-se com a demonstração de que uma entidade é dona de uma prova de identidade \textit{s} de um requerente. Essa verificação é formalizada para um valor público \textit{xs}, que disponibiliza um acesso de informação partilhado entre a entidade dona da prova de identidade e cada entidade emissora de credenciais, culimando no processo de emissão das mesmas, que está limitado por um dado valor que define o número mínimo de autoridades necessárias para tal. Cada uma destas entidades possui a relação entre uma testemunha \textit{ws} e \textit{s}, que pode ser formalizada de forma a definir mais concretamente os pormenores de validação que devem ser executados entre a entidade e a parte verificadora, tendo sempre de haver a verificação da chave pública da primeira, que não têm fundamento em ser especificados de forma a que haja uma maior compatibilidade.
+
+Existe um mapeamento que faz a ligação entre as entidades que comprovam a identidade de um utilizador com o pseudónimo gerado, de forma a que uma entidade maliciosa que tente comprovar uma identidade que já foi comprovada por uma entidade honesta ou que uma entidade honesta tente fazê-lo com um identificador que já foi associado a uma entidade maliciosa, fique com a ligação comprovada e guardada no mapeamento, prevenindo que se repita no futuro e tornando-se responsável pela mesma.
+
+A \textbf{geração de assinaturas} pode ser requerida tanto por entidades honestas como maliciosas, para um contexto e uma mensagem, criando uma ligação com o adversário assim que é feito o pedido com um identificador associado e único para cada ligação. O adversário submete uma assinatura e um pseudónimo, juntamente com um conjunto de identificadores das entidades que verificaram a sua identidade que, caso possua múltiplas identidades e estas entidades sejam maliciosas, ficam caracterizadas como maliciosas no sistema, visto que cada entidade só pode ter um pseudónimo associado a cada utilizador. De seguida, o pseudónimo é verificado como único para a mesma chave de verificação do adversário, identidade e contexto.
+
+A interface de \textbf{verificação} é usada para que entidades externas possam validar assinaturas e receber os seus pseudónimos associados. Para assinaturas geradas com as chaves de sessão das entidades verificadoras das credenciais, é analisada a caracterização das mesmas no sistema, para evitar entidades maliciosas, de resto o adversário analisa apenas o resultado da verificação. Para extrair o pseudónimo associado, a interface permite a submissão de assinaturas, que podem usar o mesmo para determinar na sua \textit{key-value store table} se já existe para um dado contexto. Caso a assinatura submetida seja inválida, é retornado um valor negativo como pseudónimo.
+
+O conceito de \textbf{fuga de assinaturas} é mencionado \cite{crites2025syra} como trabalho futuro, origem da interface do adversário para receber as assinaturas de utilizadores que são corrompidos durante o protocolo, de forma a implementar primitivas criptográficas como \textit{verifiable random functions} \cite{david2024musen} para \textit{forward secrecy}.
+
+\subsection{SASSI}
+\label{sec:sassi}
+
+No seguimento da função de assinaturas \textit{SyRA}, surge a construção de assinaturas anónimas e resilientes a \textit{Sybils}, \textit{SASSI (Sybil-resilient Anonymous Signatures with Stateless Issuing)}, que é provado executar o protocolo de assinaturas \textit{SyRA} de forma segura \cite{crites2025syra}. Existem duas partes principais do \textit{SASSI}:
 
 \begin{enumerate}
-  \item Try all the already supported schools and check which one is closer to your needs;
-  \begin{enumerate}
-    \item Edit \verb!Config/1_novathesis.tex! and near line 28 uncomment the line with key \verb!\ntsetup{school=<SOMETHING>}!;
-    \item For each school supported (see the comment), replace \verb!<SOMETHING>! with the school name, e.g., make it \verb!\ntsetup{school=ulisboa/fmv}!
-    \item Recompile and check the document.  Particularly, check the cover layout, the front-page (second cover) layout, the front-matter contents, the bibliography style;
-    \item Repeat for the next school, until you find one close enough.
-  \end{enumerate}
-  \item 
+    \item Emissão das chaves secretas de cada utilizador como uma função determinística da sua identidade única com a chave secreta conjunta das entidades emissoras;
+    \item Geração de assinaturas anónimas e resilientes a Sybils por utilizadores a partir das chaves secretas obtidas.
 \end{enumerate}
+
+A chave secreta do utilizador é composta por duas provas \textit{VRF} de Dodis-Yampolskiy, que são \textit{VRFs} aplicadas a grupos bilineares, com tamanho constante para as provas e as chaves produzidas, que pode ser usada de forma distribuída e proativa \cite{dodis2005verifiable}, que se torna ideal para o seu efeito, tornando o protocolo de \textbf{emissão limitada de credenciais} uma vertente distribuída deste tipo de provas, garantindo que a entidade emissora não observa a identidade do utilizador e um ataque conjunto necessitaria de \textit{t} entidades emissoras, comprometendo a privacidade, daí ser limitada.
+
+O \textit{SASSI} usa três primitivas criptográficas: distribuição secreta de segredos de Shamir, encriptação de ElGamal e as \textit{VRFs} de Dodis-Yampolskiy \cite{dodis2005verifiable}. A construção deste mecanismo tem quatro fases: a \textbf{geração de chaves}, a \textbf{emissão limitada de credenciais}, a \textbf{geração de assinaturas} e a \textbf{verificação}.
+
+A fase de \textbf{geração de chaves} começa pela geração de chaves privadas secretas para partilha para cada entidade emissora de credenciais, um conjunto de chaves públicas e uma chave pública de verificação.
+
+A \textbf{emissão limitada de credenciais} é um protocolo interativo entre uma entidade com um identificador real e t entidades emissoras, cada uma com a sua chave secreta, permitindo que estas possam gerar um par de chaves secretas correspondentes a duas provas \textit{VRF} de Dodis-Yampolskiy, sem produzir nenhum resultado para as mesmas. A partir disto, a entidade partilha segredos de forma verificável, a partir de \textit{broadcasting} para as entidades emissoras de credenciais, e gera uma \textit{ZNP} que prova que o partilhado por \textit{broadcast} é consistente com o identificador real, justificando a relação entre a entidade e a identidade. A entidade emissora das credenciais verifica então a \textit{ZNP}, que caso seja bem-sucedida usa valores aleatórios para criar um tuplo com a sua chave secreta e com o identificador do requerente, que são depois enviados para o mesmo. Após receber \textit{t} mensagens de \textit{t} emissores, o utilizador constrói as suas chaves secretas a partir da reconstrução das partilhas dos emissores, que depois usa para duas igualdades que caso sejam bem sucedidas, guarda as chaves e usa a credencial verificável, senão resulta em falha.
+
+A \textbf{geração de assinaturas} é possível para uma entidade a partir do seu identificador, da chave secreta derivada do mesmo, do par de contexto e de mensagem e da chave de verificação do emissor, gerando uma assinatura num par de contexto e mensagem. A entidade verificadora verifica a assinatura a partir da construção do pseudónimo, sem revelar a sua chave secreta. Isto é possível a partir da encriptação da chave secreta com um elemento público, que de seguida deve provar que o resultado está bem formado relativamente à chave de verificação do emissor, usando os mesmos passos e provando que a construção está bem formada.
+
+A fase da \textbf{verificação} começa para uma entidade verificadora quando recebe uma mensagem que inclui a chave de verificação do emissor de credenciais, um par de contexto e mensagem e uma assinatura, que é verificada e associada ao pseudónimo extraído.
+
+\subsection{Peer DID}
+\label{sec:peer_did}
+
+O uso das assinaturas \textit{SyRA} para sistemas descentralizados é mencionado no final do projeto \cite{crites2025syra}, como trabalho futuro dentro da modalidade dos \textit{Peer DIDs}. A menção entra de acordo com a ideia de \textit{self-sovereign identity}, de forma a defender que os utilizadores em sistemas de DIDs devem poder controlar a sua identidade a partir deste tipo de assinaturas, usando o seu pseudónimo em benefício da sua autonomia digital. Para isto, é mencionado o uso de \textit{Peer DIDs}, que anula a necessidade de uma \textit{blockchain} pública para a partilha dos DIDs.
+
+Os \textit{Peer DIDs} podem ser usados de forma a que para entrar em contacto com uma entidade pública ou utilizador, seja criado um \textit{pairwise DID}, que quando usado em conjunto com as assinaturas \textit{SyRA} para criação das credenciais que estão ligadas à sua identidade real, torna-se possível proteger a identidade do utilizador apesar de ser impossível relacionar as suas interações entre contextos em que surja, enquanto permite defesa contra \textit{Sybil attacks} .
+
+A utilização das assinaturas \textit{SyRA} e o \textit{SASSI} motivaram este projeto, de forma a implementar um esquema de credenciais anónimas e resilientes a \textit{sybils} para o Tor.
+
+\section{Detalhes da Implementação}
+\label{sec:dittor_detalhes}
+
+No seguimento da explicação sobre o funcionamento de \textit{ZKPs}, segue-se a implementação de \textit{non-interactive zero-knowledge proofs (NIZK)}, que contempla uma eficácia superior na fase de verificação relativamente a \textit{zk-SNARKs}, sem necessidade de um código de texto confiável comum, facilitando a verificação para utilizadores com baixa potência computacional que, neste contexto, é uma vantagem por motivar utilizadores a correr nós na rede Tor. Dentro do contexto da assinatura, o uso de provas matemáticas de conhecimento de logaritmos discretos e relação multiplicativa de expoentes permite simplificar a relação entre a emissão e a verificação da assinatura \cite{crites2025syra}.
+
+A implementação da geração distribuída de chaves tem por base esquemas de assinaturas para emissão de credenciais anónimas de forma distribuída \cite{doerner2023threshold}, culminando num processo uniforme e imparcial de um canal de broadcast, uma rede síncrona e uma maioria honesta.
