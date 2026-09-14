@@ -8,46 +8,266 @@
 
 \typeout{NT FILE chapter5.tex}%
 
-\chapter{Metodologia Proposta}
-\label{cha:metodologia_proposta}
+\chapter{Avaliação}
+\label{cha:avaliacao}
 
-Neste tópico é abordado a metodologia proposta para o projeto, de forma a projetar um plano de trabalho para o trabalho que se segue na implementação do \textit{Dittor}, mencionando possíveis ajudas, testes de implementação e discussão de resultados.
+\section{Segurança}
+\label{sec:avaliacao_seguranca}
 
-\section{Contacto frequente com Tor's Network Health Team}
-\label{sec:contacto_team}
+Nesta secção é percorrida cada propriedade de segurança apresentada previamente, justificando a sua garantia no desenho do Dittor.
 
-Visto existir um contacto constante com a \textit{Network Health Team} do Tor desde o início deste projeto, que ajudou a direcionar e a suportar com explicação de uma linha de trabalho passada por onde havia caminho por explorar, o objetivo é manter esta ligação de modo a que este projeto vá de encontro às necessidades do Tor, para que mais tarde possa ser implementado ou até usado para futuras implementações.
+\subsection{Blind Issuance}
 
-A equipa de \textit{Network Health} não só disponibilizou-se para futuras reuniões e contactos diretos como mostrou-se interessada nos resultados do projeto, o que facilita na organização de prioridades e objetivos com o mesmo.
+A propriedade de \textit{blind issuance} é garantida pela emissão das credenciais pelas CAs, dadas das propriedades de assinaturas às cegas realizadas. Desta forma, as CAs não têm conhecimento sobre o objeto assinado, tornando o processo de emissão ZK.
 
-\section{Test Case na FCT}
-\label{sec:testcase_fct}
+\subsection{Context-bound Unlinkability}
 
-Um dos objetivos delineados explora a implementação do \textit{Dittor} num ambiente controlado, de forma a averiguar resultados do sistema numa rede que simula o Tor. Para tal, seria possível, com autorização do Departamento de Informática da NOVA FCT, o uso de tecnologias de \textit{shadow software} no \textit{cluster} da universidade, de forma a não consumir muitos recursos do mesmo mas simulando uma pequena rede Tor, com \textit{Directory Authorities} e circuitos integrados, que usasse o projeto de forma a construir um ambiente que seja razoavelmente parecido e que produzisse resultados semelhantes, mas a escala pequena.
+Como as assinaturas sobre as credenciais são às cegas, uma CA maliciosa não tem informação que possa usar para correlacionar diferentes credenciais, tornando o processo de emissão das credenciais \textit{unlinkable}. O pseudónimo criado pelo utilizador é limitado pelo contexto usado, dado que a derivação da DY-VRF é feita a partir do mesmo, garantindo um processo determinístico dentro do contexto usado. Isto garante que o processo de criação do pseudónimo é \textit{context-bound unlinkable}.
 
-Para testar a mitigação de \textit{Sybil attacks}, ferramentas para teste de sistemas e injeção de \textit{sybils} \cite{sendner2025impact} seria o ideal, de forma a simular de forma mais realista os resultados provenientes de defesa contra este tipo de ataques.
+\subsection{Selective Disclosure}
 
-\section{Discussão de Resultados e Demonstração no Tor}
-\label{sec:discussao}
+Ao realizar o pedido de emissão de credencial, o utilizador divulga apenas os atributos pretendidos, mantendo ocultado o seu segredo $x$. Isto permite que o utilizador tenha \textit{selective disclosure} sobre os seus atributos.
 
-Para avaliar a solução implementada, serão utilizados os requisitos enunciados no início do projeto. A partir dos mesmos, é possível implementar requisitos que promovem a discussão científica dos resultados obtidos, avaliando a solução tanto ao nível de \textit{performance} como na segurança, mais concretamente na mitigação de \textit{Sybil attacks}.
+\subsection{Anonymity}
 
-A partir dos resultados e conclusões retiradas futuramente, está como objetivo adicional do projeto, mediante resultados positivos e aprovação superior do \textit{The Tor Project}, a implementação momentânea do \textit{Dittor} na rede Tor, de forma a testar o seu funcionamento num cenário real. Isto não passa de objetivo para já, visto que para obter aprovação do \textit{The Tor Project} para implementação é necessário obter primeiro os resultados, que advêm da implementação do \textit{Dittor}, embora tenha sido um assunto discutido em reuniões com a equipa de \textit{Network Health}.
+Dado estar garantido que o processo de emissão das credenciais é \textit{unlinkable} e o processo de criação do pseudónimo \textit{context-bound unlinkable}, as DAs verificam a legitimidade do utilizador sem obter nenhuma informação sobre a sua identidade. Por este motivo, a propriedade de anonimidade na autenticação do utilizador no Dittor é satisfeita.
 
-\section{Gantt Chart}
-\label{sec:gantt}
+\subsection{Holder Binding}
 
-Para projeção do cronograma de fases de implementação ao longo do projeto, cria-se um \textit{Gantt Chart} para visualização intuitiva:
+Dado que a credencial está associada ao segredo do utilizador $x$, só é possível ser utilizada por quem conhecer o mesmo. Como o uso da credencial está limitado a quem a possuir, o processo é \textit{holder binding}.
 
-\begin{figure}[H]
+\subsection{Credential Unforgeability}
+
+Para forjar credenciais é necessário comprometer $t$ CAs de $n$. Dada esta propriedade de segurança, torna-se muito difícil que um atacante quebre este protocolo, garantindo que é impossível forjar credenciais, que consequentemente garante \textit{credential unforgeability}.
+
+\subsection{Short Credentials}
+
+Como o número de elementos da credencial é sempre fixo, independentemente dos atributos nela contidos, elimina-se a possibilidade de usar essa dimensão como sinal de correlação entre diferentes credenciais, contribuindo para a preservação da \textit{unlinkability} já garantida pelas restantes propriedades. A propriedade de \textit{short credentials} garante \textit{unlinkability} entre as mesmas.
+
+\subsection{Sybil-Resilient}
+
+Dadas as propriedades enunciadas pelo SASSI, o processo de geração do pseudónimo é determinístico, garantindo ser impossível que um utilizador crie pseudónimos distintos para o mesmo contexto, satisfazendo a propriedade de \textit{sybil-resilient}.
+
+\section{Desempenho}
+\label{sec:avaliacao_desempenho_intro}
+
+A implementação do Dittor apresenta resultados de desempenho com uma diferença negligenciável dos Requisitos de Solução enunciados no início do documento. Para comparar, apresenta-se uma tabela que verifica esta diferença:
+
+\textit{(inserir tabela quando houver resultados testados)}
+
+O Chutney foi usado como ambiente para medição dos resultados, sendo uma ferramenta de simulação de redes Tor. Salienta-se o custo isolado do DKG, dado ser uma configuração única executada no início do sistema, enquanto o custo por registo de operador de nó é recorrente.
+
+\section{Possíveis Ataques e Respostas aos Mesmos}
+\label{sec:avaliacao_possiveis_ataques}
+
+Dado o Modelo de Atacante apresentado, a possibilidade de execução de qualquer algoritmo em tempo polinomial não é uma ameaça acrescida além da já assumida no modelo, dado que a segurança de cada primitiva criptográfica assenta em problemas matemáticos considerados computacionalmente difíceis para adversários polinomiais. A possibilidade do atacante correr um número arbitrário de nós Tor não constitui, por si só, uma ameaça, visto que cada nó continua sujeito à verificação da unicidade de pseudónimo e à comparação por família na DA, tal como definido na secção da Verificação da Prova Dittor.
+
+Caso $t$ CAs trabalhem em conjunto (\textit{colluding}), conseguem derivar a chave mestra secreta, contudo não é possível derivar as identidades dos utilizadores que fizeram pedidos porque a sua identidade nunca chega a ser revelada. Por outras palavras, se um atacante conseguir comprometer $t$ CAs, apenas permite-lhe emitir novos certificados, não deanonimizar os utilizadores, satisfazendo a propriedade de anonimato. Como é esperado que o atacante consiga corromper até $t-1$ CAs, forjar credenciais não é contemplado como uma ameaça.
+
+O anonimato dos utilizadores é teoricamente impossível de quebrar, como explicado previamente. Forjar provas de Schnorr, DY-VRF ou DLEQs não é uma ameaça, como explicado nas propriedades de segurança de cada uma destas primitivas. Apesar de um atacante passivo poder escutar as comunicações do sistema, não é possível inferir nenhuma informação, dado todo o processo de emissão de credenciais ser \textit{unlinkable}, juntamente com as garantias de \textit{context-bound unlinkability} da emissão dos pseudónimos.
+
+A injeção de mensagens é redundante, visto que o uso da credencial é unicamente válido pelo utilizador que possuir o segredo $x$ (\textit{holder binding}). A associação de identidades diferentes entre a DY-VRF e a assinatura das CAs não é possível, dada a prova DLEQ que garante que a identidade usada é a mesma. Os ataques de DoS também não são exequíveis, dado o caráter \textit{fail-safe} enunciado na \textit{bridge} Java das DAs.
+
+\section{Testes e Experiências}
+\label{sec:avaliacao_testes}
+
+Os testes e experiências realizadas estão divididos em três camadas: simulação com Babel; uso da \textit{bridge} Java ou conexão direta à porta 8081; teste completo com rede Tor via Chutney. Cada um destes níveis isola uma camada diferente do sistema, permitindo atribuir uma falha ou sucesso a cada peça da arquitetura.
+
+Ao longo deste capítulo encontram-se seis categorias de testes, para os quais são testadas estas três camadas do sistema. Estes testes permitem averiguar a qualidade da solução de acordo com os requisitos estabelecidos no início.
+
+\subsection{Rejeição de Prova Inválida}
+\label{sub:teste_rejeicao_prova_invalida}
+
+Esta categoria averigua a resposta do sistema ao nível da \textit{bridge} Java perante uma prova Dittor inválida. Para invalidar a prova, é modificado um único dígito da resposta da prova DLEQ via a classe Java \texttt{PayloadCorruptor}. Após a alteração, o pedido para as DAs é realizado por um único nó com a prova correspondente, cuja resolução é analisada após trinta tentativas. Das trinta tentativas, todas devolveram `INVALID', detetando o ataque sem falsos positivos (nenhum `VALID' incorreto). Os resultados do desempenho na deteção da prova corrompida foram os seguintes:
+
+\begin{table}[h]
     \centering
-    \includegraphics[width=0.7\linewidth]{5-Figures/GanttChart.png}
-    \caption{Cronograma das fases de implementação do projeto.}
-    \label{fig:ganttchart}
-\end{figure}
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{|p{0.55\textwidth}|p{0.25\textwidth}|}
+    \hline
+    \textbf{Estatística} & \textbf{Valor} \\
+    \hline
+    Média & 17,88 ms \\
+    \hline
+    Mediana & 16,78 ms \\
+    \hline
+    Mínimo & 15,35 ms \\
+    \hline
+    Máximo & 34,18 ms \\
+    \hline
+    Média sem \textit{outliers} (excl. as 2 execuções a 34,18 ms) & 16,71 ms \\
+    \hline
+    \end{tabular}
+    \caption{Latência (ms), N=30, na deteção de prova corrompida}
+    \label{tab:latencia_prova_invalida}
+\end{table}
 
-Este projeto começa pela fase da \textbf{Investigação}, que engloba toda a procura de artigos e conhecimento relativo ao início da implementação de um ambiente informático simulador da rede Tor e do sistema de credenciais do \textit{SASSI}, desde implementações passadas de ambos a artigos científicos que auxiliem o processo. Esta fase tem uma duração de dois meses, de forma a delinear um plano de implementação e passos para auxílio do processo. De seguida, a \textbf{Simulação do Tor} e o \textbf{SASSI} contemplam a implementação do ambiente de testes a partir do conhecimento obtido na \textbf{Investigação}, de forma a simular uma rede de utilizadores para obtenção de resultados fidedignos, que tem uma duração expectada de sete meses, sendo o obstáculo principal do projeto e as fases mais demoradas, englobando os pedidos de permissões de uso do \textit{cluster} da NOVA FCT e potenciais passos burocráticos. 
+As duas execuções a 34,18 ms contrastam das restantes 28 provavelmente por efeito de \textit{warm-up} de JIT/JVM, dado coincidirem com as primeiras ligações de cada \texttt{mvn exec:java}, sendo excluídas da média dos valores.
 
-A fase da \textbf{Análise de Resultados} constitui dois meses de procura de requisitos e formulação de gráficos para visualização simplificada dos resultados obtidos, que decorre simultaneamente com apoio da \textbf{Network Health Team} do Tor para entender os mecanismos adequados para medição do nível de sucesso do projeto, de forma a desenvolver uma implementação útil para o futuro do Tor. Esta última fase tem uma duração estimada de três meses, para perguntas e respostas com auxílio da equipa do Tor.
+De seguida, o sistema foi testado ao nível completo com o Chutney, usando a rede `networks/basic-min' com apenas um nó \texttt{000a}. Na primeira tentativa foi encontrado um \textit{bug} no \texttt{PayloadCorruptor}, que apanhou uma exceção sem \textit{crash} do sistema, de forma não-intencional. Na segunda tentativa o pseudónimo foi recebido pelas DAs e foi rejeitado, com falha na prova DLEQ:
 
-Por último, a fase da \textbf{Escrita} contempla a escrita da tese e projeto final, que deverá ter início em abril, para começar a delinear a estrutura do projeto com antecedência e completando à medida que as fases vão avançando.
+\begin{lstlisting}
+[DA-Crypto] Running Dodis-Yampolskiy VRF validation checks...
+[DA-Crypto] VRF Evaluation Outcome: PASS
+[DA-Crypto] Verifying DLEQ credential linkage proof...
+[DA-Crypto] DLEQ Eval Result: FAIL
+[DA-Server] VRF Evaluation Outcome: PASS
+[DA-Server] Credential Linkage Outcome: FAIL
+[DA-Server] Pseudonym rejected
+\end{lstlisting}
+
+Já do lado do Tor, a resposta é também categorizada como inválida:
+
+\begin{lstlisting}
+Aug 30 21:05:47.397 [warn] [Tor-Dittor] Verification REJECTED by backend for 'test000a'. Response: INVALID. Rejecting descriptor.
+\end{lstlisting}
+
+Este teste simula o percurso real desde o utilizador até às DAs, com o objetivo de deteção de adulteramento da prova por parte de um atacante, mitigando efetivamente este tipo de ataque. A partir da comparação com o valor corrompido embutido na linha do \textit{node descriptor}, é possível confirmar que a \textit{bridge} avaliou o \textit{payload} alterado.
+
+\subsection{Ausência da Prova}
+\label{sub:teste_ausencia_prova}
+
+Esta experiência está contemplada apenas ao nível da rede Tor completa, dado que a ausência de prova anula a necessidade de validação da mesma por parte da \textit{bridge}. O \textit{token} da prova Dittor é opcional nos \textit{node descriptors}, portanto a sua ausência não é um erro de \textit{parsing}. A rejeição do nó é efetuada do lado do Tor, antes da ligação à \textit{bridge}:
+
+\begin{lstlisting}[language=C]
+tok = find_opt_by_keyword(tokens, K_OPT_DITTOR_PROOF);
+...
+} else {
+  log_warn(LD_DIR, "[Tor-Dittor] Descriptor for '%s' has no dittor-proof token. "
+           "Rejecting.", ...);
+  goto err;
+}
+\end{lstlisting}
+
+Desta forma, os nós sem prova Dittor são automaticamente rejeitados do lado do Tor:
+
+\begin{lstlisting}
+Aug 30 22:05:47.591 [warn] [Tor-Dittor] Descriptor for 'test000a' has no dittor-proof token. Rejecting.
+Aug 30 22:06:47.598 [warn] [Tor-Dittor] Descriptor for 'test000a' has no dittor-proof token. Rejecting.
+\end{lstlisting}
+
+\subsection{Crash do Backend Java}
+\label{sub:teste_crash_backend}
+
+Este teste averigua a resposta do sistema quando a \textit{bridge} Java - usada para a validação da prova Dittor - é alvo de um \textit{crash} ou fica \textit{offline}, contemplando três cenários: o \textit{backend} nunca chega a arrancar, o \textit{backend} cai a meio de uma ligação já estabelecida, e a falha ocorre ao nível da rede completa.
+
+No primeiro cenário, a camada local implementa uma classe Java simuladora de um cliente da rede - \texttt{BridgeTestClient} - que faz a conexão à \textit{bridge}. Como o \textit{backend} nunca arranca, a ligação devolve `CONNECTION\_ERROR: Connection refused', cuja exceção foi tratada sem falhas. A finalização da execução leva 0,45 milissegundos, dado que a ligação TCP é recusada quase instantaneamente pelo sistema operativo.
+
+No segundo cenário, pretende-se simular o caso em que a \textit{bridge} aceita a ligação mas morre antes de responder. Como o arranque de uma nova JVM cliente introduz uma latência da mesma ordem de grandeza do tempo de resposta do próprio servidor, não é possível isolar esta janela com o \texttt{BridgeTestClient}; a alternativa usada foi abrir a ligação TCP diretamente através do redirecionamento \texttt{/dev/tcp} do \textit{bash}, enviar o pedido, e só depois terminar o processo \texttt{Main.java}. A ligação foi aceite com sucesso, mas a leitura da resposta devolveu EOF de imediato, confirmando que o servidor morreu antes de escrever qualquer linha de resposta. A inspeção do código C consumidor da \textit{bridge} (\texttt{dittor\_proxy.c}) confirma que este cenário e o anterior são tratados de forma idêntica: tanto a falha de chamada \texttt{connect()} como uma leitura de zero \textit{bytes} ou erro após uma ligação aceite resultam no mesmo valor de retorno nulo, acionando exatamente o mesmo caminho \textit{fail-open} do lado do Tor - um resultado relevante, pois mostra que a implementação não precisa de distinguir os dois modos de falha para se comportar corretamente em ambos.
+
+O terceiro cenário, ao nível da rede completa, foi realizado através da interrupção deliberada da \texttt{Main.java} após a escrita do ficheiro de prova, antes de qualquer submissão do Tor real chegar à \textit{bridge}. O resultado obtido foi o seguinte:
+
+\begin{lstlisting}
+Loopback connection to port 8081 failed. Keeping node alive.
+\end{lstlisting}
+
+com ausência de qualquer linha `Rejecting Descriptor' subsequente.
+
+Os três testes confirmam, de forma consistente, um resultado \textit{fail-open} deliberado nos três níveis do sistema, de forma a que uma falha de infraestrutura do \textit{sidecar} Java não derrube a rede Tor, ao custo de, durante essa janela, não haver imposição real da resistência a \textit{Sybil} - um \textit{trade-off} que é assumido conscientemente no desenho do Dittor.
+
+\subsection{Reutilização do Pseudónimo sem Família Partilhada}
+\label{sub:teste_reutilizacao_pseudonimo}
+
+No caso da reutilização do pseudónimo de outro utilizador e registo de um nó sem família partilhada é realizado um ataque que afeta a nível local, a \textit{bridge} e a rede completa. O teste revelou que o pseudónimo reutilizado é rejeitado a nível local por exclusão de unicidade e por ausência de interseção de identificadores de nós da mesma família. O utilizador simulado para os testes chama \texttt{System.exit(1)} neste cenário, não continuando a execução do seu protocolo. Isto acontece por questões de simplicidade da demonstração, não por limitação do protocolo. Como a implementação da unicidade do pseudónimo é feita na DA, os resultados são os mesmos quando aplicados à camada da \textit{bridge} e à rede completa.
+
+O \texttt{identity\_digest} real de quarenta caracteres hexadecimais do nó `001a' utilizado nos testes prova que é mesmo um nó Tor real, pelo caminho C completo, a ser rejeitado, e não uma simulação:
+
+\begin{lstlisting}
+[DA] New pseudonym registered for node 000a
+...
+[DA] REJECTED: node FD68816E5E77D8A44D47B113401272204D8BDC6C reused a pseudonym without shared family ids
+[DA-Server] Pseudonym rejected
+\end{lstlisting}
+
+\subsection{Aceitação de Múltiplos Nós com Família Partilhada}
+\label{sub:teste_aceitacao_familia_partilhada}
+
+Como visto no teste anterior, a validação da unicidade do pseudónimo é realizada na DA e impacta as três camadas de testes. Neste teste foi encontrado um \textit{bug}, que ao usar \texttt{split(".")} em vez de \texttt{split(",")}, não permite o funcionamento do mecanismo de família. O uso de "." como \textit{regex} é referente a qualquer caractere, em vez do ponto final pretendido, o que devolve um \textit{array} vazio. A configuração de \texttt{K\_FAMILY\_CERT} garante que o teste é realizado através do mecanismo real e completo de certificados de família do Tor, permitindo que um utilizador registe múltiplos \textit{relays} usando o mesmo pseudónimo. Depois de corrigir o \textit{bug}, os dois nós são finalmente aceites:
+
+\begin{lstlisting}
+[DA] New pseudonym registered for node 0738F207067BC55F8931A0FF0A1AFB94369F2515
+[DA] Node FD68816E5E77D8A44D47B113401272204D8BDC6C accepted under existing pseudonym (shared family)!
+[DA] Node 0738F207067BC55F8931A0FF0A1AFB94369F2515 accepted under existing pseudonym (shared family)!
+\end{lstlisting}
+
+Com os seus logs correspondentes, sem rejeição:
+
+\begin{lstlisting}
+[notice] [Tor-Dittor] Verification SUCCESS for 'test000a'!
+[notice] [Tor-Dittor] Verification SUCCESS for 'test001a'!
+\end{lstlisting}
+
+\subsection{Desempenho}
+\label{sub:teste_desempenho}
+
+A avaliação do desempenho do Dittor foi realizada em quatro vertentes: o \textit{overhead} introduzido pela \textit{bridge} Java isoladamente, a latência de registo completo de um novo operador de nó, o custo de configuração inicial do DKG entre as CAs, e a comparação destes valores com os \textit{benchmarks} de referência da rede Tor já enunciados nos Requisitos da Solução.
+
+O \textit{overhead} da \textit{bridge} foi medido isolando o tempo de resposta da porta 8081 a pedidos válidos e inválidos, com N=30 para cada caso:
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{|p{0.28\textwidth}|p{0.08\textwidth}|p{0.13\textwidth}|p{0.13\textwidth}|p{0.1\textwidth}|p{0.1\textwidth}|}
+    \hline
+    \textbf{Cenário} & \textbf{N} & \textbf{Média} & \textbf{Mediana} & \textbf{Mín} & \textbf{Máx} \\
+    \hline
+    Payload válido (VALID) & 30 & 22,84 ms & 20,01 ms & 17,95 ms & 66,87 ms \\
+    \hline
+    Payload inválido (INVALID) & 30 & 17,88 ms & 16,78 ms & 15,35 ms & 34,18 ms \\
+    \hline
+    \end{tabular}
+    \caption{Overhead da bridge Java para payloads válidos e inválidos}
+    \label{tab:overhead_bridge}
+\end{table}
+
+A diferença entre os dois casos (~4 ms, sem contar \textit{outliers}) corresponde ao custo adicional da verificação bilinear completa da credencial, que só é executada quando as restantes provas já são válidas. Note-se que uma amostra inicial isolada do caso VALID (57,60 ms, obtida antes desta medição com N=30) sugeria uma diferença muito maior entre os dois casos; com um número de amostras suficiente para atenuar efeitos de arranque de JVM, a diferença real revela-se mais modesta, o que reforça a importância de repetir as medições em vez de tirar conclusões de uma amostra única.
+
+A latência de registo \textit{end-to-end} de um novo operador de nó - desde o pedido inicial às três CAs até à resposta final da DA, já com o DKG previamente concluído - foi medida em cinco execuções sucessivas: 201, 157, 160, 161 e 158 ms, com uma média de 167,4 ms (159 ms excluindo o primeiro valor, atribuído ao mesmo efeito de arranque de JVM observado nas restantes medições). Este valor cobre a totalidade do processo de acreditação do utilizador, incluindo a agregação \textit{threshold} das assinaturas das CAs, a construção da prova DLEQ e a verificação de unicidade de pseudónimo na DA, sendo por isso representativo do custo recorrente que cada novo operador de nó introduz na rede.
+
+O custo de configuração inicial do DKG entre as três CAs foi medido de forma independente, instrumentando o início e o fim do protocolo em cada CA. Os resultados variam consoante a ordem de arranque de cada CA, dado que a primeira CA lançada tem de aguardar pelo arranque das restantes duas antes de poder completar o seu próprio DKG, enquanto a última CA lançada já encontra as outras prontas:
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.45\textwidth}|p{0.15\textwidth}|}
+    \hline
+    \textbf{CA} & \textbf{Amostras (ms)} & \textbf{Média} \\
+    \hline
+    CA-1 (lançada 1º) & 1413, 2140, 1408, 1326 & 1571,8 ms \\
+    \hline
+    CA-2 & 887, 1017, 574, 726 & 801 ms \\
+    \hline
+    CA-3 & 118, 442, 104, 104 & 192 ms \\
+    \hline
+    \end{tabular}
+    \caption{Custo de configuração inicial do DKG por CA}
+    \label{tab:custo_dkg}
+\end{table}
+
+O valor da CA-3 (~100-450 ms) aproxima-se do custo intrínseco do protocolo DKG em si, já com todas as ligações estabelecidas, enquanto o valor da CA-1 (~1,3-2,1 s) reflete o tempo de configuração operacional completo do ponto de vista de quem arranca o Dittor pela primeira vez, incluindo o arranque das três JVMs. Ao contrário da latência de registo por nó, este é um custo único, executado apenas no arranque do sistema ou em reconfigurações voluntárias do conjunto de CAs, e não se repete por cada operador de nó que se junta à rede.
+
+Para contextualizar estes valores, relacionamo-los com a frequência real de ocorrência na rede Tor:
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{|p{0.3\textwidth}|p{0.2\textwidth}|p{0.35\textwidth}|}
+    \hline
+    \textbf{Operação no Dittor} & \textbf{Custo médio} & \textbf{Frequência na rede real} \\
+    \hline
+    Verificação de um \textit{node descriptor} na \textit{bridge} (VALID) & ~20-23 ms & uma vez por ciclo de republicação de \textit{node descriptor} por nó \\
+    \hline
+    Registo completo de um novo \textit{relay} (CAs + DA) & ~160 ms & uma vez por \textit{relay}, ao entrar na rede \\
+    \hline
+    Configuração do DKG das três CAs & ~100-450 ms (inicial) \newline ~1,3-2,1 s (operacional) & uma vez, no arranque da infraestrutura Dittor \\
+    \hline
+    \end{tabular}
+    \caption{Custo das operações do Dittor face à frequência de ocorrência na rede Tor}
+    \label{tab:custo_vs_frequencia}
+\end{table}
+
+O argumento central desta comparação assenta na distinção entre o caminho de publicação do \textit{node descriptor} e o caminho de dados do utilizador. A verificação Dittor ocorre inteiramente no primeiro - entre o processo Tor de um \textit{relay} e as DAs, através do \texttt{routerparse.c}, \texttt{dittor\_proxy.c} e a \textit{bridge} Java - e nunca no segundo, que é o que as métricas de referência do Tor Metrics medem: tempo de \textit{download} de ficheiros, \textit{timeouts} e falhas, tempo de construção de circuitos, latência \textit{round-trip} e \textit{throughput}. Um utilizador a navegar através de \textit{relays} já publicados não sofre qualquer \textit{overhead} do Dittor, porque a verificação da identidade do \textit{relay} já ocorreu antes, no momento da sua publicação, não em cada circuito estabelecido nem em cada pedido HTTP realizado.
+
+Mesmo o valor mais elevado medido (os ~2,1 segundos da configuração operacional do DKG) é um custo único de infraestrutura, comparável em ordem de grandeza a um único circuito de três saltos da rede real (até 500 ms por salto, segundo o Tor Metrics), mas pago uma única vez, e não por cada interação do utilizador. Os custos recorrentes mais relevantes - os ~160 ms por registo de \textit{relay} e os ~20 ms por verificação de \textit{node descriptor} - ocorrem de hora em hora, nunca no caminho de um pedido do utilizador final.
+
+Conclui-se, assim, que o requisito de performance enunciado nos Requisitos de Solução - uma diferença de performance insignificante para a experiência do utilizador entre a rede original e a rede com o Dittor integrado - é cumprido não apenas porque os valores absolutos são baixos, mas também porque, por desenho, nenhum dos custos introduzidos pelo Dittor recaem sobre o caminho de dados do utilizador.

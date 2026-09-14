@@ -8,86 +8,341 @@
 
 \typeout{NT FILE chapter4.tex}%
 
-\chapter{Dittor - Anonymous and Sybil-Resilient Credential Scheme for Tor}
+\chapter{Dittor - Esquema de Credenciais Anónimas e Resiliente a Sybils para o Tor}
 \label{cha:dittor}
 
-O \textit{Dittor} é um esquema de credenciais descentralizado e resistente a \textit{sybils} que permite \textit{selective disclosure} de atributos de forma confidencial, anónima e \textit{unlinkable}, mesmo que uma das entidades emissoras de credenciais seja maliciosa, para ser incorporado no Tor. Inicialmente, surge da necessidade de prevenção de \textit{Sybil attacks} no Tor, motivado pelas técnicas demonstradas anteriormente e culminando num paradigma diferente para a mitigação deste tipo de ataque: ao invés de mecanismos para identificar possíveis \textit{sybils} na rede, é criado um sistema de credenciais que não permite que exista mais do que uma credencial para um dado pseudónimo de um utilizador. 
+\section{Visão Geral}
+\label{sec:dittor_visao_geral}
 
-O \textit{Nym} projeta uma adaptação do \textit{Coconut} integrada com as \textit{Nym credentials} para que os seus utilizadores possam interagir com o sistema de forma verificada e anónima, enquanto o \textit{Dittor} surge como um esquema para acreditação dos \textit{relay operators}, de modo a que um utilizador voluntário que queira correr um nó na rede Tor terá que passar por este processo de validação de identidade para o poder fazer, garantindo uma ligação entre uma entidade e identidade única e exclusiva. A partir da credencial fornecida, este utilizador pode comunicar com as \textit{Directory Authorities} para assumir o controlo sobre um nó na rede.
+O Dittor é um esquema de credenciais descentralizado e resistente a \textit{Sybil Attacks} que permite a utilização e \textit{selective disclosure} de atributos de forma confidencial, anónima e \textit{unlinkable}, mesmo que uma das entidades emissoras de credenciais seja maliciosa, tendo como objetivo a sua incorporação no Tor. Inicialmente, surge da necessidade de prevenção de \textit{Sybil attacks} no Tor, motivada pelas técnicas demonstradas anteriormente e culminando num paradigma diferente para a mitigação deste tipo de ataque: ao invés de mecanismos para identificar possíveis \textit{sybils} na rede, é criado um sistema de credenciais que associa cada identidade real a uma única identidade criptográfica, permitindo posteriormente a geração de pseudónimos dependentes do contexto. Desta forma, uma mesma identidade produz o mesmo pseudónimo para um determinado contexto, enquanto pseudónimos produzidos para contextos diferentes não permitem estabelecer uma ligação entre as diferentes utilizações.
 
-Como o Tor preza acima de tudo a sua privacidade, surge a necessidade de criação de um sistema de autenticação descentralizado, de forma a que: a privacidade dos utilizadores não possa ser violada por uma entidade; não exista ligação possível entre a verificação e a entidade emissora, nem entre o requerente e o pedido; não exista ligação entre o utilizador e as suas credenciais, culminando num processo \textit{Zero-Knowledge} para todas as entidades participantes no sistema, incluindo as \textit{Directory Authorities}, e permitindo uma ligação entre os nós que uma entidade corre com uma identidade. O esquema de acreditação usado no \textit{Dittor} assemelha-se muito ao \textit{Coconut}, mais especificamente nestas propriedades, mas muda os mecanismos e acrescenta uma camada de proteção contra \textit{Sybil attacks}.
+O Dittor baseia-se no modelo de credenciais anónimas do Coconut, adaptando os seus mecanismos para o contexto da acreditação dos operadores de nós da rede Tor. Deste modo, um utilizador voluntário que queira correr um nó na rede Tor terá que passar por este processo de validação de identidade que lhe permita obter uma identidade criptográfica única, sem que esta identidade seja posteriormente revelada às entidades responsáveis pela verificação. A partir da credencial fornecida, este utilizador pode comunicar com as \textit{Directory Authorities} para demonstrar que possui uma identidade válida e tornar-se um operador de nó na rede Tor. No protótipo desenvolvido, o segredo criptográfico associado à identidade é gerado aleatoriamente, simulando o resultado do processo de validação de uma identidade real e permitindo testar os mecanismos criptográficos do Dittor sem implementar essa entidade externa.
 
-\section{Propriedades}
-\label{sec:dittor_propriedades}
+Como o Tor preza acima de tudo a privacidade dos seus utilizadores, surge a necessidade de criação de um sistema de autenticação descentralizado que permita verificar a legitimidade dos operadores sem comprometer a sua privacidade. Assim, não deve existir uma ligação entre o processo de emissão e a utilização posterior da credencial, nem entre diferentes utilizações da mesma identidade em contextos distintos. Da mesma forma, as \textit{Directory Authorities} devem conseguir verificar a validade das credenciais e das provas apresentadas sem obter a identidade real do requerente. Para responder a estes requisitos, o Dittor recorre a mecanismos de \textit{blind issuance}, \textit{selective disclosure}, ZKPs e pseudónimos dependentes do contexto. O esquema de acreditação utilizado no Dittor assemelha-se ao Coconut nestas propriedades, mas adapta os seus mecanismos ao contexto do Tor e acrescenta uma camada de proteção contra \textit{Sybil Attacks}.
 
-Antes de avançar para as mudanças técnicas, é necessário definir o objetivo do \textit{Dittor}. Para isto, associa-se um conjunto de propriedades que devem ser mantidas ao longo de toda a implementação deste projeto, que em muito se baseiam nas propriedades do \textit{Coconut} \cite{sonnino2018coconut}:
+\section{Objetivos e Propriedades}
+\label{sec:dittor_objetivos_propriedades}
 
-\begin{itemize}
-    \item \textit{\textbf{Threshold authorities:}} É apenas necessário um subconjunto do conjunto de autoridades emissoras de certificados para criação de certificados parciais para o utilizador, onde para um número \textit{t} de autoridades, a emissão dos certificados tem complexidade temporal \textit{O(t)};
-    \item \textit{\textbf{Blind issuance and Unlinkability:}} Existe uma modalidade de \textit{Zero-Knowledge} no processo de emissão das credenciais, em que as entidades responsáveis por fazê-lo não aprendem nenhuma informação relativa ao requerente. Para além disto, os certificados emitidos são \textit{unlinkable} entre eles, mesmo que todas as entidades participem num ataque;
-    \item \textit{\textbf{Non-interactivity:}} As autoridades emissoras de certificados podem operar de forma independente entre elas, de forma a que não seja necessário nenhuma sincronização para a emissão de certificados;
-    \item \textit{\textbf{Liveness:}} Esta propriedade relaciona-se com a primeira, visto que é suficiente que um \textit{threshold} de entidades emissoras de certificados se mantenham honestas para que o sistema continue em funcionamento;
-    \item \textit{\textbf{Efficiency:}} Apesar de todas as propriedades de segurança, é necessário garantir que haja uma \textit{performance} adequada às expectativas dos utilizadores, de forma a que se torne num modelo útil para o dia-a-dia. Para que isto aconteça, é fulcral que as primitivas criptográficas e as provas de \textit{Zero-Knowledge} tenham um protocolo eficiente para todos os passos do \textit{Coconut}, de forma a que a complexidade temporal de \textit{O(1)} deste esquema se mantenha nesta adaptação;
-    \item \textit{\textbf{Short Credentials:}} O número de elementos da credencial tem de ser independente do número de atributos nela contidos, para mitigar qualquer \textit{traffic correlation} que permita a associação entre credenciais, deanonimizando o requerente;
-    \item \textit{\textbf{Sybil-Resilient:}} Esta propriedade é inovadora relativamente ao \textit{Coconut}, e visa a proteção contra \textit{Sybil attacks} da rede Tor, que é o objetivo deste projeto. Para que o leitor possa entender melhor o mecanismo de proteção, é necessário explicar este tópico com mais profundidade.
-\end{itemize}
+Antes de avançar para as mudanças técnicas, é necessário definir o objetivo do Dittor. Para isto, associa-se um conjunto de propriedades que devem ser mantidas ao longo de toda a implementação deste projeto, que em muito se baseiam nas propriedades do Coconut \cite{sonnino2018coconut}. Estas propriedades podem ser divididas em propriedades de segurança, propriedades do sistema e propriedades de desempenho, de forma a distinguir as garantias de privacidade e segurança pretendidas, o funcionamento do esquema e os requisitos necessários para que este possa ser utilizado no contexto do Tor.
+
+\subsection{Propriedades de Segurança}
+\label{sub:dittor_propriedades_seguranca}
+
+\subsubsection{Blind Issuance}
+
+Existe uma modalidade de emissão cega das credenciais, em que as entidades responsáveis pela emissão não aprendem a informação secreta utilizada pelo requerente durante o processo de emissão. Desta forma, é possível obter uma credencial válida sem que as entidades emissoras consigam associar diretamente a credencial à identidade do utilizador.
+
+\subsubsection{Context-bound Unlinkability}
+
+Os certificados emitidos devem ser \textit{unlinkable} entre eles quando utilizados em contextos diferentes, mesmo que todas as entidades emissoras participem num ataque. No entanto, quando utilizados no mesmo contexto, devem permitir a produção de pseudónimos determinísticos, de forma a que o mesmo utilizador produza o mesmo pseudónimo para o mesmo contexto. Assim, é possível reconhecer a utilização da mesma identidade dentro de um contexto sem permitir estabelecer uma ligação entre as suas utilizações em contextos diferentes.
+
+\subsubsection{Selective Disclosure}
+
+O utilizador deve revelar apenas os atributos necessários para uma determinada interação, sem que seja necessário revelar a totalidade da informação presente na credencial. Desta forma, diferentes entidades podem verificar diferentes propriedades do utilizador sem obter informação adicional que não seja necessária para a interação.
+
+\subsubsection{Anonymity}
+
+A verificação da credencial deve permitir confirmar que o utilizador possui uma identidade válida sem revelar a sua identidade real às entidades responsáveis pela verificação. Desta forma, as \textit{Directory Authorities} conseguem verificar a legitimidade de um operador sem obter informação que permita identificar diretamente o utilizador.
+
+\subsubsection{Holder Binding}
+
+A utilização de uma credencial deve estar associada ao conhecimento do segredo criptográfico pertencente ao utilizador a quem a credencial foi emitida. Desta forma, mesmo que uma entidade consiga obter uma credencial pertencente a um outro utilizador, não deve conseguir utilizá-la de forma válida sem possuir o segredo associado à identidade correspondente.
+
+\subsubsection{Credential Unforgeability}
+
+Um utilizador que não tenha recebido uma credencial válida não deve conseguir criar uma credencial que seja aceite pelas entidades responsáveis pela sua verificação. Esta propriedade deve manter-se mesmo perante entidades emissoras maliciosas, desde que sejam respeitadas as assunções de segurança do esquema \textit{threshold}.
+
+\subsubsection{Short Credentials}
+
+O número de elementos da credencial deve ser independente do número de atributos nela contidos, de forma a mitigar qualquer correlação de tráfego que permita a associação entre credenciais diferentes, contribuindo para a preservação do anonimato e da \textit{unlinkability} do requerente.
+
+\subsubsection{Sybil-Resilient}
+
+Esta propriedade é inovadora relativamente ao Coconut, e visa a proteção contra \textit{Sybil Attacks} da rede Tor, que é o objetivo principal deste projeto. Para isto, cada identidade real deve estar associada a uma única identidade criptográfica, a partir da qual são produzidos pseudónimos dependentes do contexto. Desta forma, não é necessário manter um registo das identidades ou credenciais previamente emitidas para detetar a reutilização de uma identidade, uma vez que a propriedade de unicidade é garantida pelo próprio esquema criptográfico. Para que o leitor possa entender melhor o mecanismo de proteção, é necessário explicar este tópico com mais profundidade.
+
+\subsection{Propriedades do Sistema}
+\label{sub:dittor_propriedades_sistema}
+
+\subsubsection{Threshold Authorities}
+
+É apenas necessário um subconjunto do conjunto de autoridades emissoras de certificados para a criação de uma credencial para o utilizador. Para um conjunto de $n$ autoridades, é suficiente a participação de um \textit{threshold} $t$ de autoridades para que seja possível completar o processo de emissão, não sendo necessária a participação de todas as autoridades emissoras.
+
+\subsubsection{Non-Interactivity}
+
+As autoridades emissoras de certificados podem operar de forma independente entre elas, de forma a que não seja necessária nenhuma sincronização entre todas as autoridades para a emissão de uma credencial. Cada autoridade pode produzir a sua participação no processo de emissão de forma independente, sendo posteriormente possível combinar as diferentes participações para obter a credencial final.
+
+\subsubsection{Liveness}
+
+Esta propriedade relaciona-se com a primeira, visto que é suficiente que um \textit{threshold} de entidades emissoras se mantenha disponível e honesto para que o sistema continue em funcionamento. Desta forma, a indisponibilidade ou comportamento malicioso de um subconjunto das autoridades não deve impedir um utilizador válido de completar o processo de emissão da sua credencial.
+
+\subsubsection{Decentralization}
+
+A responsabilidade pela emissão das credenciais encontra-se distribuída por várias entidades, de forma a que nenhuma autoridade individual possua controlo total sobre o processo de emissão. Desta forma, o sistema não depende da confiança numa única entidade emissora e reduz-se o impacto de uma autoridade que apresente um comportamento malicioso.
+
+\subsection{Propriedades de Desempenho}
+\label{sub:dittor_propriedades_desempenho}
+
+\subsubsection{Efficiency}
+
+Apesar de todas as propriedades de segurança e privacidade, é necessário garantir que haja um desempenho adequado às expectativas dos utilizadores, de forma a que se torne num modelo útil para o dia-a-dia. Para que isto aconteça, é fulcral que as primitivas criptográficas e as provas de \textit{Zero-Knowledge} tenham um custo suficientemente reduzido para que os diferentes passos do esquema não introduzam um impacto significativo no processo de acreditação e verificação dos operadores de nós.
+
+\subsubsection{Communication Overhead}
+
+Para além da complexidade computacional das primitivas utilizadas, é necessário garantir que a quantidade de informação transmitida entre o utilizador e as diferentes entidades seja suficientemente reduzida. O tamanho das credenciais e das provas utilizadas durante os diferentes protocolos deve ser mantido reduzido, de forma a minimizar o custo de comunicação introduzido pelo Dittor na rede.
 
 \section{Mitigação de Sybil Attacks}
-\label{sec:dittor_sybil}
+\label{sec:dittor_mitigacao_sybils}
 
-Apesar do esquema do \textit{Coconut} basear-se na validação de uma prova de \textit{Zero-Knowledge} sobre a satisfação de um predicado sobre um atributo para emissão de uma credencial \cite{sonnino2018coconut}, não existe nenhuma verificação sobre o requerente que previna que este assuma diferentes identidades para a mesma prova. Seria possível guardar um tipo de \textit{distributed ledger} com a informação sobre os requerentes e as \textit{Zero-Knowledge Proofs} fornecidas que os conectassem para impedir a reutilização das mesmas provas para diferentes identidades, de forma a ser conhecimento público entre as entidades emissoras de certificados, contudo isto revelaria problemas de segurança relativos à \textit{unlinkability} entre os certificados emitidos e os utilizadores que, mesmo que a informação fosse privada para as autoridades confiadas do Tor, poderia ser alvo de ataques e suscetível a fuga de dados. Para isto, surge uma mudança no esquema do \textit{Coconut} na validação das credenciais dos requerentes por parte das entidades emissoras, de forma a impedir que uma entidade possa assumir diferentes identidades.
+\subsection{Limitação do Coconut}
+\label{sub:dittor_limitacao_coconut}
 
-\subsection{SyRA}
-\label{sec:syra}
+Apesar do esquema do Coconut se basear na validação de uma ZKP sobre a satisfação de um predicado relativamente a um atributo para a emissão de uma credencial \cite{sonnino2018coconut}, não existe nenhuma verificação sobre o requerente que impeça que este utilize diferentes identidades para obter diferentes credenciais, desde que continue a satisfazer o predicado necessário para a emissão. Desta forma, um mesmo utilizador poderia assumir diferentes identidades perante as entidades emissoras e obter uma credencial para cada uma delas, permitindo a criação de múltiplas identidades válidas na rede.
 
-Em 2025, surgem as assinaturas \textit{SyRA (Sybil-resilient anonymous)}, que permitem assinaturas digitais assegurando \textit{threshold issuance}, \textit{unforgeability} (que impede que sejam forjadas assinaturas por utilizadores que não sejam o próprio), \textit{Sybil resilience}, preservação de privacidade e \textit{unlinkability} \cite{crites2025syra}. Estas assinaturas são usadas de forma a complementar uma \textit{verifiable credential} da identidade real do sujeito, que pode ser obtida a partir de qualquer identificador legal (como o Cartão de Cidadão português), biométrico (como a impressão digital) ou a partir de qualquer método legal capaz de identificação como o OAuth \cite{recordon2006openid}, por exemplo, com o objetivo de alta compatibilidade com qualquer entidade legal para emissão destas credenciais. Estas entidades responsabilizam-se por garantir que o certificado gerado pelas mesmas é válido e dentro dos moldes legais, garantindo que não existe mais do que uma identidade para o mesmo certificado, isto é, não existem dois sujeitos com o mesmo identificador civil, por exemplo. As assinaturas \textit{SyRA} são usadas com estas credenciais de forma a gerar um pseudónimos para cada contexto, ou seja para cada entidade legal emissora das credenciais, de forma a que não seja possível retirar informação que correlacione a identidade do utilizador com os pseudónimos, mesmo que todas sejam maliciosas. Estes pseudónimos são derivados da identidade única do utilizador, que quando associados com a chave pública da entidade responsável pela \textit{verifiable credential}, é criado um identificador deste utilizador para ser usado num sistema. É importante notar que o pseudónimo criado com cada entidade mantém-se igual independentemente do número de certificados emitidos, garantindo que o utilizador não se personifica por diferentes identidades. De seguida, observamos as diferentes fases para este modelo, que contemplam os passos para obter uma assinatura \textit{SyRA}.
+Uma possível solução para este problema seria manter algum tipo de \textit{distributed ledger} com informação sobre os requerentes e os pedidos de emissão realizados, de forma a que as entidades emissoras conseguissem verificar se uma determinada identidade já tinha sido utilizada anteriormente para obter uma credencial. No entanto, para que esta abordagem fosse possível, seria necessário estabelecer uma ligação entre diferentes pedidos realizados pelo mesmo utilizador. Esta informação poderia comprometer as propriedades de \textit{unlinkability} pretendidas pelo Coconut, uma vez que permitiria às entidades emissoras associar diferentes credenciais ou pedidos à mesma identidade. Mesmo que esta informação fosse mantida apenas pelas autoridades consideradas confiáveis do Tor, continuaria a existir o risco de ataques sobre estas entidades ou de uma fuga de informação que permitisse estabelecer ligações. Ao garantir que o processo de emissão de credenciais é \textit{unlinkable}, o risco de correlação diminui, o que desmotiva um atacante com intenções de comprometer uma entidade emissora.
 
-A fase de \textbf{geração de chaves} engloba a verificação que cada conjunto de entidades emissoras de credenciais consegue inicializar a sua instância da assinatura \textit{SyRA}. Após receção de todas as confirmações de todas as entidades de cada conjunto, o requerente assina a assinatura \textit{SyRA} com uma chave de verificação, que fica guardada nesta.
+O problema não consiste apenas em impedir que um utilizador obtenha várias credenciais, mas em fazê-lo sem introduzir um mecanismo de identificação ou de armazenamento de estado que comprometa o anonimato e a \textit{unlinkability} do esquema. Para isto, o Dittor introduz uma alteração ao modelo de acreditação do Coconut, baseada na associação de uma identidade real a uma única identidade criptográfica, permitindo garantir a resistência a \textit{Sybil Attacks} sem que as entidades emissoras necessitem de manter informação sobre as credenciais anteriormente emitidas. O mecanismo utilizado para estabelecer esta associação e garantir a unicidade da identidade criptográfica é apresentado de seguida.
 
-A \textbf{emissão limitada de credenciais} inicia-se com a demonstração de que uma entidade é dona de uma prova de identidade \textit{s} de um requerente. Essa verificação é formalizada para um valor público \textit{xs}, que disponibiliza um acesso de informação partilhado entre a entidade dona da prova de identidade e cada entidade emissora de credenciais, culimando no processo de emissão das mesmas, que está limitado por um dado valor que define o número mínimo de autoridades necessárias para tal. Cada uma destas entidades possui a relação entre uma testemunha \textit{ws} e \textit{s}, que pode ser formalizada de forma a definir mais concretamente os pormenores de validação que devem ser executados entre a entidade e a parte verificadora, tendo sempre de haver a verificação da chave pública da primeira, que não têm fundamento em ser especificados de forma a que haja uma maior compatibilidade.
+\subsection{Problema da Identidade Única}
+\label{sub:dittor_problema_identidade_unica}
 
-Existe um mapeamento que faz a ligação entre as entidades que comprovam a identidade de um utilizador com o pseudónimo gerado, de forma a que uma entidade maliciosa que tente comprovar uma identidade que já foi comprovada por uma entidade honesta ou que uma entidade honesta tente fazê-lo com um identificador que já foi associado a uma entidade maliciosa, fique com a ligação comprovada e guardada no mapeamento, prevenindo que se repita no futuro e tornando-se responsável pela mesma.
+A identidade criptográfica de um utilizador no sistema é definida por um segredo associado ao mesmo que, para efeitos de simulação, é calculado de forma aleatória. Num cenário real, a identidade única do utilizador pode ser, por exemplo, um identificador civil ou outro tipo de identificador, desde que se garanta a sua unicidade. A identidade criptográfica do sistema representa então a identidade única do utilizador no mundo real, garantindo um mapeamento direto entre uma identidade e um segredo, consequentemente determinístico por identidade e associável internamente, nunca observável externamente.
 
-A \textbf{geração de assinaturas} pode ser requerida tanto por entidades honestas como maliciosas, para um contexto e uma mensagem, criando uma ligação com o adversário assim que é feito o pedido com um identificador associado e único para cada ligação. O adversário submete uma assinatura e um pseudónimo, juntamente com um conjunto de identificadores das entidades que verificaram a sua identidade que, caso possua múltiplas identidades e estas entidades sejam maliciosas, ficam caracterizadas como maliciosas no sistema, visto que cada entidade só pode ter um pseudónimo associado a cada utilizador. De seguida, o pseudónimo é verificado como único para a mesma chave de verificação do adversário, identidade e contexto.
+Um utilizador malicioso pode, porventura, requerer múltiplas credenciais com “identidades” diferentes às \textit{Certificate Authorities} (CAs) - isto é trivial, dado que as credenciais são assinadas às cegas pelas CAs, isto é, sem conhecimento do conteúdo da mensagem assinada. Como não guardam estado nem têm conhecimento de elementos que distingam os pedidos, cada pedido é opaco, tornando o ataque exequível. Não é desejado que os pedidos sejam relembrados também para manter o processo \textit{unlinkable}, como explicado previamente.
 
-A interface de \textbf{verificação} é usada para que entidades externas possam validar assinaturas e receber os seus pseudónimos associados. Para assinaturas geradas com as chaves de sessão das entidades verificadoras das credenciais, é analisada a caracterização das mesmas no sistema, para evitar entidades maliciosas, de resto o adversário analisa apenas o resultado da verificação. Para extrair o pseudónimo associado, a interface permite a submissão de assinaturas, que podem usar o mesmo para determinar na sua \textit{key-value store table} se já existe para um dado contexto. Caso a assinatura submetida seja inválida, é retornado um valor negativo como pseudónimo.
+A desconexão entre os pedidos feitos às CAs é proveniente da emissão de credenciais sem registo persistente de identidades ou pedidos anteriores. Requere-se que a solução funcione sem qualquer registo persistente de identidades ou pedidos anteriores para emissão das credenciais.
 
-O conceito de \textbf{fuga de assinaturas} é mencionado \cite{crites2025syra} como trabalho futuro, origem da interface do adversário para receber as assinaturas de utilizadores que são corrompidos durante o protocolo, de forma a implementar primitivas criptográficas como \textit{verifiable random functions} \cite{david2024musen} para \textit{forward secrecy}.
-
-\subsection{SASSI}
-\label{sec:sassi}
-
-No seguimento da função de assinaturas \textit{SyRA}, surge a construção de assinaturas anónimas e resilientes a \textit{Sybils}, \textit{SASSI (Sybil-resilient Anonymous Signatures with Stateless Issuing)}, que é provado executar o protocolo de assinaturas \textit{SyRA} de forma segura \cite{crites2025syra}. Existem duas partes principais do \textit{SASSI}:
+O \textbf{Problema da Identidade Única} é composto por duas partes distintas:
 
 \begin{enumerate}
-    \item Emissão das chaves secretas de cada utilizador como uma função determinística da sua identidade única com a chave secreta conjunta das entidades emissoras;
-    \item Geração de assinaturas anónimas e resilientes a \textit{Sybils} por utilizadores a partir das chaves secretas obtidas.
+    \item A existência de um atributo do mundo real que pertença inequivocamente a uma só pessoa é um requisito mínimo para o funcionamento do sistema. Isto é uma pré-condição que o esquema não resolve matematicamente;
+    \item Dado um atributo do mundo real identificador único de cada pessoa, é necessário derivar dele um segredo criptográfico que seja o mesmo sempre que a pessoa o usa, e que possa ser verificado internamente, mantendo-se ocultado a terceiros.
 \end{enumerate}
 
-A chave secreta do utilizador é composta por duas provas \textit{VRF} de Dodis-Yampolskiy, que são \textit{VRFs} aplicadas a grupos bilineares, com tamanho constante para as provas e as chaves produzidas, que pode ser usada de forma distribuída e proativa \cite{dodis2005verifiable}, que se torna ideal para o seu efeito, tornando o protocolo de \textbf{emissão limitada de credenciais} uma vertente distribuída deste tipo de provas, garantindo que a entidade emissora não observa a identidade do utilizador e um ataque conjunto necessitaria de \textit{t} entidades emissoras, comprometendo a privacidade, daí ser limitada.
+O esquema criptográfico assenta na pré-condição apresentada no ponto 1, garantindo um processamento do segredo de acordo com o ponto 2.
 
-O \textit{SASSI} usa três primitivas criptográficas: distribuição secreta de segredos de Shamir, encriptação de ElGamal e as \textit{VRFs} de Dodis-Yampolskiy \cite{dodis2005verifiable}. A construção deste mecanismo tem quatro fases: a \textbf{geração de chaves}, a \textbf{emissão limitada de credenciais}, a \textbf{geração de assinaturas} e a \textbf{verificação}.
+Posto isto, a solução tem de garantir que múltiplos processos de acreditação de um utilizador, com uma dada identidade $x$, leva a resultados idênticos. Estes resultados não podem ser relacionáveis nem previsíveis a partir de resultados obtidos em contextos diferentes, e devem permitir a existência de uma entidade verificadora, sem conhecimento da identificação do utilizador, e interação com terceiros durante o processo de verificação.
 
-A fase de \textbf{geração de chaves} começa pela geração de chaves privadas secretas para partilha para cada entidade emissora de credenciais, um conjunto de chaves públicas e uma chave pública de verificação.
+A validação do atributo do mundo real mencionado na primeira parte do problema assume-se resolvida por uma entidade externa, sintetizando o foco do projeto como a segunda parte.
 
-A \textbf{emissão limitada de credenciais} é um protocolo interativo entre uma entidade com um identificador real e t entidades emissoras, cada uma com a sua chave secreta, permitindo que estas possam gerar um par de chaves secretas correspondentes a duas provas \textit{VRF} de Dodis-Yampolskiy, sem produzir nenhum resultado para as mesmas. A partir disto, a entidade partilha segredos de forma verificável, a partir de \textit{broadcasting} para as entidades emissoras de credenciais, e gera uma \textit{ZKP} que prova que o partilhado por \textit{broadcast} é consistente com o identificador real, justificando a relação entre a entidade e a identidade. A entidade emissora das credenciais verifica então a \textit{ZKP}, que caso seja bem-sucedida usa valores aleatórios para criar um tuplo com a sua chave secreta e com o identificador do requerente, que são depois enviados para o mesmo. Após receber \textit{t} mensagens de \textit{t} emissores, o utilizador constrói as suas chaves secretas a partir da reconstrução das partilhas dos emissores, que depois usa para duas igualdades que caso sejam bem sucedidas, guarda as chaves e usa a credencial verificável, senão resulta em falha.
+\subsection{Intuição do Dittor}
+\label{sub:dittor_intuicao}
 
-A \textbf{geração de assinaturas} é possível para uma entidade a partir do seu identificador, da chave secreta derivada do mesmo, do par de contexto e de mensagem e da chave de verificação do emissor, gerando uma assinatura num par de contexto e mensagem. A entidade verificadora verifica a assinatura a partir da construção do pseudónimo, sem revelar a sua chave secreta. Isto é possível a partir da encriptação da chave secreta com um elemento público, que de seguida deve provar que o resultado está bem formado relativamente à chave de verificação do emissor, usando os mesmos passos e provando que a construção está bem formada.
+O utilizador pode criar vários pedidos de emissão de certificados para várias identidades sem conhecimento da CA, dado ser um processo de assinatura às cegas. A remoção da cegueira destruiria a \textit{unlinkability} entre os pedidos, logo é necessário encontrar uma solução.
 
-A fase da \textbf{verificação} começa para uma entidade verificadora quando recebe uma mensagem que inclui a chave de verificação do emissor de credenciais, um par de contexto e mensagem e uma assinatura, que é verificada e associada ao pseudónimo extraído.
+Como notação do Dittor, designa-se o segredo bruto do utilizador por $x$, por $w_x$ a testemunha que comprova a posse de um atributo único do mundo real, e por $sk$ o segredo final derivado a partir de $w_x$, usado na geração do pseudónimo. Para além disto, existem dois elementos distintos no pedido da credencial feito pelo utilizador: a ZKP que prova a relação com a testemunha e é verificada, e o compromisso de Pedersen que é assinado de forma cega. A confiança na unicidade do atributo $x$ do utilizador é reposta por uma prova de posse do mesmo, antes da derivação do segredo, mudando o paradigma de “aceitar a alegação” para “verificar a ligação criptograficamente”. A derivação colaborativa do segredo do utilizador é realizada por um subconjunto $t$ de $n$ entidades emissoras, garantindo que só existe um segredo válido derivável por testemunha $w_x$. Esta derivação é realizada com recurso ao mecanismo do SASSI, mitigando o ataque. O segredo final $sk$ é derivado através de uma função determinística, garantindo criptograficamente a sua unicidade e resultados idênticos para múltiplos pedidos de emissão de credenciais, para a mesma identidade. Por outras palavras, como $sk$ passa a ser função determinística de $w_x$, e só existe uma testemunha válida por pessoa, só existe um $sk$ derivável por pessoa. Quando $sk$ é combinado com um dado contexto, é gerado um pseudónimo determinístico, um identificador único dentro de um sistema.
 
-\subsection{Peer DID}
-\label{sec:peer_did}
+Enquanto o esquema do Coconut conecta a credencial a um atributo declarado pelo utilizador, confiando na sua unicidade, o Dittor conecta a derivação do próprio segredo à prova de posse da testemunha. O sistema garante que a propriedade de \textit{Holder Binding} mantenha-se, na medida em que a credencial não pode ser usada sem uma prova de posse do segredo, já depois de emitida.
 
-O uso das assinaturas \textit{SyRA} para sistemas descentralizados é mencionado no final do projeto \cite{crites2025syra}, como trabalho futuro dentro da modalidade dos \textit{Peer DIDs}. A menção entra de acordo com a ideia de \textit{self-sovereign identity}, de forma a defender que os utilizadores em sistemas de DIDs devem poder controlar a sua identidade a partir deste tipo de assinaturas, usando o seu pseudónimo em benefício da sua autonomia digital. Para isto, é mencionado o uso de \textit{Peer DIDs}, que anula a necessidade de uma \textit{blockchain} pública para a partilha dos DIDs.
+\subsection{Mecanismo de Pseudónimos Context-Bound}
+\label{sub:dittor_pseudonimos_context_bound}
 
-Os \textit{Peer DIDs} podem ser usados de forma a que para entrar em contacto com uma entidade pública ou utilizador, seja criado um \textit{pairwise DID}, que quando usado em conjunto com as assinaturas \textit{SyRA} para criação das credenciais que estão ligadas à sua identidade real, torna-se possível proteger a identidade do utilizador apesar de ser impossível relacionar as suas interações entre contextos em que surja, enquanto permite defesa contra \textit{Sybil attacks} .
+O contexto \textit{ctx} do sistema é uma \textit{string} fixa definida previamente que é usada na geração do pseudónimo, garantindo um resultado determinístico. Enquanto o SASSI suporta múltiplos contextos, o Dittor usa um único contexto para todo o sistema, relacionado com o registo de nós da rede Tor. A geração do pseudónimo é formalizada da seguinte forma:
 
-A utilização das assinaturas \textit{SyRA} e o \textit{SASSI} motivaram este projeto, de forma a implementar um esquema de credenciais anónimas e resilientes a \textit{sybils} para o Tor.
+\begin{equation*}
+    y_{ctx} = VRF_{sk}(ctx) \, ,
+\end{equation*}
 
-\section{Detalhes da Implementação}
-\label{sec:dittor_detalhes}
+de acordo com a construção de uma DY-VRF explanada na secção do Background. Isto garante que para um dado par $(sk, ctx)$, existe sempre o mesmo $y_{ctx}$.
 
-No seguimento da explicação sobre o funcionamento de \textit{ZKPs}, segue-se a implementação de \textit{non-interactive zero-knowledge proofs (NIZK)}, que contempla uma eficácia superior na fase de verificação relativamente a \textit{zk-SNARKs}, sem necessidade de um código de texto confiável comum, facilitando a verificação para utilizadores com baixa potência computacional que, neste contexto, é uma vantagem por motivar utilizadores a correr nós na rede Tor. Dentro do contexto da assinatura, o uso de provas matemáticas de conhecimento de logaritmos discretos e relação multiplicativa de expoentes permite simplificar a relação entre a emissão e a verificação da assinatura \cite{crites2025syra}.
+Enquanto os pedidos das credenciais são \textit{unlinkable}, graças às propriedades das assinaturas cegas, este mecanismo de pseudónimos é \textit{context-bound unlinkable}, na medida em que para um dado contexto \textit{ctx}, o uso do pseudónimo $y_{ctx}$ é rastreável. É importante distinguir que dois pseudónimos, $y_{ctx_1}$ e $y_{ctx_2}$, com $ctx_1 \neq ctx_2$, são estatisticamente independentes, mesmo para o mesmo $sk$. Esta propriedade não é explorada no Dittor, visto que o contexto é fixo para todos os utilizadores, mas permite integração de outros sistemas, desde que o contexto seja diferente, revelando as suas propriedades de escalabilidade.
 
-A implementação da geração distribuída de chaves tem por base esquemas de assinaturas para emissão de credenciais anónimas de forma distribuída \cite{doerner2023threshold}, culminando num processo uniforme e imparcial de um canal de broadcast, uma rede síncrona e uma maioria honesta.
+O pseudónimo $y_{ctx}$ é acompanhado da prova de posse do atributo do utilizador, que usa uma prova de Schnorr para construir uma ZKP que demonstra a posse de $x$. Esta ZKP prova o conhecimento de $sk$, sem o revelar, e que $y_{ctx}$ foi corretamente calculado a partir do mesmo. O pseudónimo $y_{ctx}$ é usado como chave numa tabela pelas DAs de forma a detetar a sua reutilização, que é possível detetar graças ao determinismo matemático da geração do pseudónimo. Desta forma, o uso de pseudónimos permite que os utilizadores mantenham o mesmo identificador para um dado atributo único, não garantindo, por si só, a deteção da reutilização. As tabelas de colisão das DAs tornam isto possível, impedindo o registo de nós com o mesmo pseudónimo associado não pertencentes à mesma família.
+
+Como o Dittor tem um único caso de uso concreto no registo de nós Tor, o contexto único simplifica a distinção entre operadores de nós e utilizadores externos. Porém, esta aplicação é extensível a outros ramos do Tor, caso um utilizador tenha acesso a múltiplos contextos. A limitação a um único contexto é uma decisão contextual, não uma limitação do mecanismo.
+
+\section{Arquitetura do Sistema}
+\label{sec:dittor_arquitetura}
+
+Dada a intuição e o mecanismo criptográfico do Dittor como estabelecidos, podemos formalizar concretamente a arquitetura do sistema. Para tal, analisamos as peças que compõem o sistema, desde os atores à sua modelagem, complementadas da formalização do modelo de atacante contemplado. Para melhor entendimento, finalizamos a secção com um fluxo geral do Dittor, antes de seguir para a explicação detalhada do funcionamento dos protocolos de comunicação entre as peças do sistema. Este tópico responde às perguntas estruturais do sistema, complementando as propriedades do mesmo descritas anteriormente e o porquê de as satisfazer.
+
+\subsection{Atores}
+\label{sub:dittor_atores}
+
+O Utilizador ou Operador de Nó é o agente principal do sistema, como detentor do segredo de identidade, requerente do pedido de emissão da credencial e do registo nas DAs. Este ator representa os utilizadores da rede Tor que, voluntariamente, desejam ser operadores de nós, usando um atributo único - que na implementação é gerado aleatoriamente - para realizar o pedido da credencial às CAs. É também responsável por apresentar o pseudónimo às DAs, de forma a registar-se como operador de um dado nó no sistema.
+
+As CAs (\textit{Certificate Authorities}) são um conjunto de $n$ entidades responsáveis pela emissão conjunta das credenciais sobre os atributos dos utilizadores. Internamente, operam sobre o protocolo de DKG e emitem partes da credencial mediante a prova da testemunha, sendo necessário agregar um mínimo de $t$ partes para que o utilizador possa reconstruir a credencial, de acordo com as propriedades de \textit{Threshold Authorities} e \textit{Decentralization} já definidas.
+
+As DAs (\textit{Directory Authorities}) correspondem às \textit{Directory Authorities} do próprio Tor, mantendo as suas funções originais de publicação do \textit{Tor Consensus} e aceitação dos \textit{node descriptors}, com o papel acrescentado pelo Dittor de verificação da \textit{dittor-proof} e persistência da tabela de pseudónimos por contexto. Embora no SASSI haja o papel da entidade verificadora, aqui essa função é atribuída às DAs, assumindo esse papel.
+
+Existe uma entidade externa de validação de identidade responsável pelo primeiro ponto do Problema da Identidade Única, que apesar de ser um papel teórico, é importante mencionar, dado o trabalho fundamental de providenciar um identificador único. É considerado um papel adicional dentro da arquitetura da implementação, contudo é listada como ator formal para definir as limitações do Dittor.
+
+\subsection{Modelo do Sistema}
+\label{sub:dittor_modelo_sistema}
+
+Para facilitar a compreensão do modelo do sistema são apresentados dois diagramas, um de atores e outro de fases, duas representações visuais dos fluxos de funcionamento do Dittor.
+
+O sistema admite confiança parcial nas CAs, isto é, desde que o número de CAs corrompidas não ultrapasse $t-1$. As DAs, tal como no Tor, constituem um conjunto restrito de nós de elevada confiança. Assim que o \textit{node descriptor} do nó é assinado, é assumida confiança total no mesmo. Os canais de comunicação entre o utilizador e as CAs e entre o utilizador e as DAs é efetuado com o Babel; entre o código C do Tor e a \textit{bridge} Java é usado um \textit{socket} TCP, com porta 8081. É assumido um modelo de rede síncrono, de acordo com o funcionamento da DKG.
+
+\subsection{Modelo do Atacante}
+\label{sub:dittor_modelo_atacante}
+
+É esperado que um atacante tenha controlo total da rede, podendo intercetar qualquer mensagem, e poder computacional limitado, mas capaz de correr em tempo polinomial qualquer algoritmo. Adicionalmente, tem acesso elevado a recursos, podendo correr um número arbitrário de nós Tor. Para além disso, espera-se que o atacante consiga corromper até $t-1$ CAs, porém não consiga corromper $t$ ou mais em simultâneo. As assunções de segurança não são quebráveis pelo modelo, na medida em que os problemas matemáticos adjacentes (DDH, BDH e $q$-DBDHI) se mantêm impossíveis de quebrar. Isto é semelhante para as assunções de segurança das primitivas criptográficas usadas, como por exemplo forjar provas Schnorr ou VRF sem o segredo correspondente.
+
+O adversário tem como objetivo principal quebrar o anonimato dos utilizadores da rede Tor, através de \textit{Sybil Attacks} ou ataques à \textit{unlinkability} entre contextos. Também pode forjar credenciais ou contornar o processo de emissão das mesmas. Um adversário passivo pode tentar escutar as comunicações entre as entidades do sistema, enquanto um adversário ativo pode injetar ou alterar mensagens, como associar ao pseudónimo uma prova de Schnorr com uma identidade diferente da correspondente à da credencial assinada pelas CAs. Não é contemplado qualquer tipo de colaboração no mundo real para a realização de ataques, sendo impossível para o adversário forjar testemunhas reais.
+
+Ataques de \textit{Denial-of-Service} para impedimento de obtenção de credenciais por parte das CAs ou resposta das DAs ao pseudónimo enviado são relevantes para o modelo, sendo também considerados.
+
+\subsection{Fluxo Geral do Dittor}
+\label{sub:dittor_fluxo_geral}
+
+Para simplificar o fluxo geral do Dittor, antes da explicação dos detalhes técnicos da próxima secção, são enumerados os passos de execução do sistema:
+
+\begin{enumerate}
+    \item \textbf{(Validação Externa)} A identidade proposta pelo utilizador é validada por uma entidade externa considerada como uma testemunha da sua unicidade;
+    \item \textbf{(Configuração das CAs)} O grupo de CAs é criado em conjunto com as suas chaves correspondentes, de acordo com o esquema DKG. Esta configuração não é alterada, a não ser de forma voluntária pelo proprietário do sistema;
+    \item \textbf{(Pedido da Credencial)} O utilizador pede às CAs que, após verificarem que uma testemunha real $w_x$ tem posse do atributo único $x$ do utilizador, assinem às cegas o seu compromisso de $x$, garantindo que ele é o detentor de um dado segredo associado à sua identidade. Após $t$ respostas das CAs agregadas pelo utilizador, este constrói a sua credencial;
+    \item \textbf{(Derivação da Identidade)} O utilizador deriva o $sk$ ligado à sua testemunha;
+    \item \textbf{(Cálculo do Pseudónimo)} O utilizador calcula o seu pseudónimo $y_{ctx}$, juntamente com a sua prova Schnorr que garante que a identidade na credencial é a mesma da ZKP associada;
+    \item \textbf{(Inserção no Node Descriptor)} A prova é inserida no \textit{node descriptor} do nó Tor de que pretende ser operador;
+    \item \textbf{(Validação das DAs)} As DAs fazem o \textit{parsing} do nó e encaminham ao \textit{proxy} de Java do Dittor, que faz a verificação matemática da prova e consulta a tabela de pseudónimos já associados aos nós;
+    \item \textbf{(Resposta das DAs)} As DAs divulgam o resultado da sua validação do pedido no próximo documento do \textit{Tor Consensus} publicado.
+\end{enumerate}
+
+Enquanto alguns destes processos ocorrem uma única vez no sistema, como a (Configuração das CAs), outros ocorrem em paralelo para cada par operador de nó e relay, como o (Pedido da Credencial) e a (Inserção no Node Descriptor). A (Validação das DAs) e a (Resposta das DAs) acaba por ser cíclica, na medida em que o estado sobre o pseudónimo de um utilizador é renovado a cada publicação do Tor Consensus, sendo excluído caso identificado como malicioso.
+
+A secção seguinte conecta os atores do sistema a cada um destes passos com uma explicação mais técnica, mencionando: o pedido de credencial e inserção do pseudónimo no \textit{node descriptor} realizados pelo utilizador; o processo de DKG das CAs e de emissão da credencial; e a validação do pseudónimo e publicação do \textit{Tor Consensus} das DAs. As funcionalidades da validação da identidade do utilizador e a publicação do \textit{Tor Consensus} não estão contidas no próximo tópico, dado serem simuladas localmente.
+
+\section{Protocolos}
+\label{sec:dittor_protocolos}
+
+\subsection{Distributed Key Generation}
+\label{sub:dittor_protocolo_dkg}
+
+A geração de chaves a partir de uma autoridade central confiável - o \textit{Dealer} - torna-a num alvo de ataques, e necessita que o sistema tenha uma chave mestra principal. Esta chave mestra é usada para derivar as chaves de todas as outras CAs e, caso seja descoberta, um atacante pode utilizá-la para emitir certificados autonomamente. A geração distribuída de chaves anula o ponto de falha único do \textit{Dealer}, permitindo que as CAs criem autonomamente a sua parte da chave mestra. Esta acaba por ser a solução mais segura e consequentemente adotada no Dittor.
+
+O protocolo consiste em criar uma curva elíptica que pode ser usada para derivar partes da chave mestra a partir de Shamir's Secret Sharing. De seguida, o segredo é guardado num polinómio de grau $t-1$, que mantém-se desde que o valor de \textit{threshold} se mantenha, independentemente do número de CAs. Se o fator fosse 4 de 5, eram necessários quatro pontos de derivação da chave mestra, portanto cada CA usaria como polinómio uma função cúbica. A implementação do Dittor utiliza um DKG de 2-3 CAs, com possibilidade de customizar o valor de \textit{threshold} e de $n$. Neste caso, o segredo é guardado num polinómio resultante de grau um, ou seja uma linha: $f(x) = a_1x + a_0$. O polinómio é então usado para calcular partes da chave mestra para cada CA, derivadas de um elemento obtido de forma uniformemente aleatória do emparelhamento pertencente ao grupo bilinear público gerado inicialmente. Isto é conseguido ao calcular as outras partes da chave das CAs, após a primeira CA derivar a sua parte da chave, para que possam fazer o mesmo. As CAs têm canais de comunicação via Babel, com mensagens distintas para cada operação (envio e receção do polinómio).
+
+O protocolo do DKG de Pedersen de $t$-$n$ CAs \cite{pedersen_vss_berkeley} implementado no Dittor toma as vulnerabilidades apontadas por Gennaro et al. em conta \cite{gennaro2007secure}, implementando o mecanismo sugerido para mitigar as mesmas. Cada CA começa por publicar um \textit{hash} do seu compromisso público: $A_{i,0} = g^{z_i}$. De seguida, revelam os seus compromissos reais, de forma a que qualquer CA que não cumpra a ordem (revele antes do \textit{hash} estar publicado por todas ou tente alterar o valor) é excluída do sistema. Isto impossibilita que um atacante que comprometa uma CA tenha influência sobre a chave mestra pública criada, dado que deixa de conseguir decidir que partes da chave excluir depois de ver as das CAs honestas, porque nessa altura já se comprometeu com o seu próprio \textit{hash}.
+
+De seguida, cada parte da chave mestra é verificada localmente por cada CA, aplicando a seguinte igualdade:
+
+\begin{equation*}
+    g^{s_{ij}} h^{t_{ij}} = \prod_{k=0}^{t-1} (C_{i,k})^{j^k} \, ,
+\end{equation*}
+
+já formalizada na secção do Background e agora aplicada como passo concreto no protocolo. O passo final consiste na finalização do DKG, agregando as frações secretas $x_i$ e cálculo da chave pública global $y = g^x$ a partir dos compromissos publicados, sem reconstrução de $x$ no sistema.
+
+Embora haja alternativas mais recentes de DKG que abordam a vulnerabilidade de Gennaro et al., foi decidido implementar o mecanismo sugerido, de forma a manter o foco do projeto nas assunções de segurança e primitivas criptográficas usadas. De qualquer forma, a implementação de um DKG mais recente e com melhor desempenho fica como uma possível extensão futura, não implementada dado o prazo do projeto. O desempenho deste mecanismo tem efeitos mínimos no desempenho do Dittor quando comparado com outras soluções, na medida em que este protocolo apenas decorre no arranque do sistema.
+
+\subsection{Pedidos das CAs e Emissão de Credenciais}
+\label{sub:dittor_protocolo_pedidos_cas}
+
+O utilizador pede a cada CA que assine, às cegas, um compromisso de Pedersen sobre o seu atributo único, $x$. No âmbito desta implementação, as CAs assinam o compromisso sem verificação adicional de posse de um atributo do mundo real, ficando essa verificação, o primeiro ponto do Problema da Identidade Única, como trabalho futuro. Após a assinatura, é emitida a sua assinatura parcial cega, usando a fração $x_i$ sobre o compromisso recebido e a chave secreta parcial de cada CA.
+
+Para que o utilizador comunique com as CAs, são usadas duas mensagens do Babel, \textit{CredentialRequestMsg} e \textit{CredentialReplyMsg}. Apenas $t$ de $n$ respostas são necessárias para que o utilizador construa a credencial, garantindo \textit{liveness} ao processo. Nenhuma CA guarda registo do pedido depois de responder, garantindo que o processo é feito sem estado. Enquanto a emissão é feita sem estado, isto não é verdade para a verificação do pseudónimo, como vamos perceber nas próximas secções.
+
+\subsection{Apresentação da Credencial}
+\label{sub:dittor_protocolo_apresentacao_credencial}
+
+Após resposta de $t$ CAs, o utilizador pode finalmente produzir a credencial final. Para isto, agrega as $t$ assinaturas parciais cegas recebidas, e produz a assinatura completa via interpolação de Lagrange. Finalmente, o fator de cegueira é removido usando a chave pública das CAs, obtendo uma assinatura válida sobre $x$.
+
+Para garantir que a credencial obtida foi construída corretamente, o utilizador verifica, localmente, se a propriedade da (Bilinearity) do emparelhamento bilinear se mantém, confirmando assim a sua autenticidade. Após confirmação, o utilizador prepara para transporte três elementos: $g_1^x$, elemento do primeiro grupo do emparelhamento bilinear calculado a partir do gerador $g_1$; $\sigma = g_1^{x \cdot msk}$, a credencial desbloqueada com a assinatura das CAs, onde $msk$ é a chave secreta mestra agregada das CAs, resultante da soma das frações $x_i$ obtidas na fase de DKG; e a prova DLEQ, que liga $x$ a $g_1^x$.
+
+\subsection{Registo nas DAs}
+\label{sub:dittor_protocolo_registo_das}
+
+A mensagem do utilizador para as DAs é composta pela sua chave pública, o resultado da DY-VRF, $g_1^x$; a credencial $\sigma$, a prova DLEQ e o contexto. A credencial é inserida como uma \textit{dittor-proof} no \textit{node descriptor} pelo utilizador, que é transferida pelas DAs aquando a construção do \textit{Tor Consensus}. Ao invés do utilizador validar o pseudónimo nas DAs e depois mencionar o nó Tor cujo pretende ser operador, é preferível que o nó Tor contenha, no seu \textit{node descriptor}, a \textit{dittor-proof} associada ao mesmo, para evitar utilizadores maliciosos que personifiquem-se pelo utilizador e associem-se ao nós antes do processo estar finalizado. Para além disto, o \textit{node descriptor} é assinado com a chave privada do nó, logo torna-se mais seguro para a \textit{dittor-proof} associada. Desta forma, a DA não questiona se o utilizador que faz o pedido é o correto, validando logo isso a partir do nó.
+
+Estando concluído o transporte das provas para as \textit{Directory Authorities} do Tor, é necessária a verificação dos elementos enviados.
+
+\subsection{Verificação da Prova Dittor}
+\label{sub:dittor_protocolo_verificacao}
+
+As DAs começam por verificar três provas: a DY-VRF, garantindo que a propriedade (Bilinearity) se mantém e que o pseudónimo produzido corresponde às duas igualdades formalizadas na secção do Background; a DLEQ, validando as duas igualdades associadas $g^s = r_1 \cdot y^c$ e $h^s = r_2 \cdot z^c$; e a equação bilinear da credencial, $e(\sigma, g_2) = e(g_1^x, mpk)$, que confirma que o pseudónimo apresentado corresponde a uma credencial emitida pelas CAs, e não a um $x$ criado voluntariamente pelo utilizador.
+
+Caso ambas as provas sejam validadas, é consultada uma tabela de pseudónimos com pares $(contexto, pseudónimo)$, de forma a rejeitar qualquer colisão que não seja declarada no \textit{node descriptor} como pertencente à mesma família (o contexto é sempre igual para o Dittor, comparando apenas os pseudónimos). Em caso de colisão, comparam-se os identificadores dos nós, pertencentes à família do nó em questão, com os já associados a esse pseudónimo na tabela, aceitando apenas se existir interseção.
+
+Caso a validação do nó e do pseudónimo do seu operador seja bem-sucedida, a tabela de pseudónimos é atualizada com os identificadores dos nós operados pelo dado pseudónimo. De forma a tornar a validação independente do código em C das DAs e a permitir futuras adaptações ao Arti (isto vai ser explorado mais à frente), é implementada uma \textit{bridge} em Java que comunica por um \textit{socket} com a rede Tor, responsável pela validação dos pseudónimos e atualização das tabelas. No tópico dos Detalhes da Implementação isto é explicado de forma mais detalhada. Caso haja uma falha no \textit{backend} Java, é devolvido um erro de \textit{timeout} ou \textit{crash}, anulando o processo para o utilizador.
+
+\subsection{Geração do Pseudónimo e Validação}
+\label{sub:dittor_protocolo_geracao_pseudonimo}
+
+São usadas várias primitivas criptográficas para gerar o pseudónimo. A derivação do segredo final $sk$ é concretizada com recurso a interpolação de Lagrange das partes da assinatura cega das CAs, tal como formalizado na partilha de segredos de Shamir. O pseudónimo é construído com a DY-VRF apresentada, estando implementada no Dittor em Java. A credencial desbloqueada $\sigma = g_1^{x \cdot msk}$ é acompanhada de uma DLEQ que prova, sem revelar $x$, que o mesmo $x$ está por trás da chave pública $pk = g_2^x$, usada na DY-VRF, e do elemento $g_1^x$, usado na verificação da credencial, de acordo com a construção apresentada na secção do Background.
+
+O uso destas três primitivas - interpolação de Lagrange, DY-VRF e DLEQ - constitui a cadeia matemática usada para a geração e ligação do pseudónimo à credencial do utilizador. Adicionalmente, a verificação da credencial é realizada dada a assinatura desbloqueada $\sigma$, a chave mestra pública das CAs $mpk$, associada ao segundo grupo do emparelhamento bilinear, e os geradores de cada grupo do emparelhamento bilinear $g_1$ e $g_2$. A validação é dada caso a seguinte igualdade se verifique:
+
+\begin{equation*}
+    e(\sigma, g_2) = e(g_1^x, mpk)
+\end{equation*}
+
+Esta equação pode ser simplificada usando a propriedade bilinear em funções de emparelhamentos bilineares, validando a prova sem revelar $x$.
+
+\section{Integração com o Tor}
+\label{sec:dittor_integracao_tor}
+
+\subsection{Arti vs cTor}
+\label{sub:dittor_arti_vs_ctor}
+
+A integração do Dittor com o código base do Tor tinha dois caminhos muito distintos: ou as mudanças eram realizadas no código mais antigo do Tor, feito em C e raramente atualizado; ou efetuadas no último repositório desenvolvido pelo Tor Project, o Arti, implementado em Rust e inacabado. A escolha consiste numa faca de dois gumes, visto que a relevância do Dittor é limitada se for aplicado a uma ferramenta mais antiga, sendo mais facilmente desatualizado, mas se for implementado sobre um código inacabado pode correr risco de não ser útil no futuro, por alguma mudança na base de código.
+
+Por questões de experiência académica, é mais fácil entender C do que Rust, sendo uma linguagem desconhecida, o que envolve despesa de tempo essencial em aprendizagem. Rust, pelo outro lado, é a linguagem de programação de eleição no mundo da segurança e privacidade dadas as suas garantias de \textit{memory-safety} \cite{xu2021memorysafety}, o que torna o Arti uma base mais robusta a longo prazo, apesar de ser um repositório mais recente e menos trabalhado. O ponto crítico deste repositório é estar em desenvolvimento, mais especificamente o código das DAs e o \textit{parsing} de nós, cujo único caminho seria implementar o código em falta no Arti, para depois construir o Dittor.
+
+A integração do Dittor foi feita com o código base do Tor, o cTor, por questões de familiaridade com a linguagem de programação e viabilidade da adaptação, dado o tempo de execução da tese. Desta forma, a base de código do Tor foi alterada em C de forma a integrar o Dittor, mais especificamente o \textit{parsing} de \textit{node descriptors} e os ficheiros relacionados com os relays. Para resolver os problemas provenientes de uma desatualização mais rápida do código do Dittor, foi desenhada uma \textit{bridge} Java como camada externa do código do Tor, facilitando a portabilidade no futuro para o Arti.
+
+\subsection{Arquitetura do Tor e Integração}
+\label{sub:dittor_arquitetura_tor_integracao}
+
+Nesta secção definimos onde é que a informação do Dittor se encaixa na estrutura existente de um \textit{node descriptor}. Recapitulando, um \textit{node descriptor} consiste num documento estruturado em texto simples que contém as chaves de identidade de longo prazo do nó, as \textit{onion keys} efémeras para a negociação de circuitos, o endereço IP, portas de comunicação, \textit{uptime}, largura de banda e a declaração de pertença a famílias de relays \cite{tor_dirspec_serverdesc}.
+
+A estrutura do Dittor adiciona ao \textit{parser} do \textit{node descriptor}, no ficheiro \texttt{routerparse.c}, um novo \textit{token} denominado de \texttt{K\_OPT\_DITTOR\_PROOF}, e a construção do próprio \textit{node descriptor} em \texttt{router.c}, que lê o ficheiro de prova do Dittor e injeta a informação no \textit{node descriptor}, antes da assinatura do nó. A \textit{dittor-proof} foi introduzida no sistema como um \textit{token} adicional dentro do formato já existente do \textit{node descriptor}, dada a infraestrutura de assinatura e distribuição já construída pelo Tor, reduzindo a quantidade de alterações necessárias. A validação da \textit{dittor-proof} é realizada do lado da DA aquando do \textit{parsing} do \textit{node descriptor} recebido, e não do lado do \textit{relay} que gera o \textit{node descriptor}, de forma a que a confiança na validade da prova não dependa da autocertificação do próprio operador do nó.
+
+\subsection{Node Descriptor e Prova Dittor}
+\label{sub:dittor_node_descriptor_prova}
+
+O \textit{node descriptor} de cada nó sofre uma atualização, com espaço para um novo \textit{token} - a \textit{dittor-proof} - com o contexto, a chave pública, o pseudónimo, $g_1^x$, a credencial $\sigma$ e os componentes da DLEQ. Como a prova está dentro do \textit{node descriptor}, herda a assinatura do próprio nó pela sua chave privada de identidade, que é a mesma proteção que todos os outros campos do \textit{node descriptor} já têm. Isto resolve o ataque de personificação do operador de nó correto, ao associar criptograficamente o utilizador ao nó assim que este é assinado.
+
+\subsection{Integração através de Proxy}
+\label{sub:dittor_integracao_proxy}
+
+A arquitetura da implementação está dividida em duas camadas: uma de \textit{parsing}, e outra de criptografia pesada de validação da prova. Enquanto a primeira foi implementada em C dentro do Tor, a segunda foi delegada para a \textit{bridge} de Java via uma \textit{socket} TCP na porta 8081. Isto permitiu o reaproveitamento de bibliotecas de Java de primitivas criptográficas com mecanismos de emparelhamentos bilineares, sem necessidade de implementação de operações de curvas elípticas em C. Ao usar as bibliotecas, o risco de \textit{bugs} é menor, e acelera a implementação na medida em que a atualização do código não requer recompilação do Tor.
+
+O \textit{payload} enviado pelo \textit{proxy} em C para a \textit{bridge} Java segue o formato VALIDATE, contendo o contexto, a chave pública, o pseudónimo, $g_1^x$, a credencial $\sigma$ e os componentes da DLEQ, sendo a resposta da \textit{bridge} um valor booleano de validade que reflete tanto a verificação matemática das provas como o resultado da consulta à tabela de pseudónimos. Em caso de falha ou indisponibilidade da \textit{bridge}, o comportamento adotado é \textit{fail-safe}, tal como descrito na secção anterior: o \textit{relay} não é aceite enquanto a validação não puder ser confirmada, evitando que uma falha do \textit{backend} seja interpretada como aprovação por omissão.
+
+\section{Implementação}
+\label{sec:dittor_implementacao}
+
+\subsection{Linguagens e Bibliotecas}
+\label{sub:dittor_impl_linguagens}
+
+O Dittor está implementado em duas linguagens: Java, para a camada de credenciais e a criptografia subjacente, e C, para as alterações ao código base do Tor, cada uma escolhida por questões de maior familiaridade e adequação ao contexto de integração, como explicado previamente na secção do Arti vs cTor. As bibliotecas usadas, como por exemplo o Cryptimeleon, foram escolhidas por critério de eficácia na implementação e longevidade do código.
+
+A biblioteca \textit{Cryptimeleon} foi usada para implementar as primitivas criptográficas em Java, mais especificamente as classes dos grupos bilineares - \texttt{BilinearGroup}, \texttt{GroupElement} e \texttt{Zn} - e a curva elíptica BLS12-381 usada, tal como definida no Background, com nível de segurança de 128 bits. A biblioteca do \textit{Chutney} permite testes e simulações da rede Tor, usando dependências extras mais recentes de Python 3.10 ou versões superiores. Ambas as bibliotecas foram escolhidas por motivos de eficiência e popularidade, facilitando a integração no Dittor. Adicionalmente, a biblioteca do \textit{Netty} está integrada na biblioteca do Babel. Esta biblioteca permite a serialização das mensagens Babel, gerindo toda a codificação e decodificação dos \textit{payloads} entre as entidades do sistema.
+
+\subsection{Estrutura da Implementação}
+\label{sub:dittor_impl_estrutura}
+
+As diretorias do Dittor estão separadas por funcionalidade. O pacote \texttt{chutney} contém o código relativo ao Chutney, e o mesmo se aplica para o pacote \texttt{tor}. Dentro do pacote \texttt{dittor} está o código relativo ao Dittor, com o código separado em: \texttt{crypto}, com o código relativo às primitivas criptográficas e classes relativas às entidades do sistema que as usam; \texttt{protocols}, com as mensagens e \textit{handlers} da lógica Babel; \texttt{tor}, para a \textit{bridge} que comunica com o código em C. Por último, a classe \texttt{Main.java} tem o código que gere o sistema, instanciando todas as classes do sistema. Dentro do código em C do Tor estão as alterações do Dittor, mais especificamente em \texttt{tor/src/feature/dirparse} e \texttt{tor/src/feature/relay}, que são explanadas com mais detalhe na secção da Integração com o Tor.
+
+\subsection{Implementação do DKG}
+\label{sub:dittor_impl_dkg}
+
+Dentro da classe \texttt{CA.java} é gerado o polinómio privado em \texttt{generatePrivatePolynomial()}, juntamente com o cálculo das partes destinadas a cada CA em \texttt{evaluatePolynomial()}, e a finalização do DKG, \texttt{finalizeDKG()}. A fase de \textit{commit-then-reveal} da correção de Gennaro et al. está implementada em \texttt{CA.java}, na geração do \textit{hash} público e compromisso do mesmo, em conjunto com as mensagens Babel na diretoria do \texttt{protocols}. A fase de verificação local das partes das chaves das CAs está também implementada em \texttt{CA.java}. Para configurar os parâmetros $t$ e $n$ do DKG, existe um ficheiro de configuração para acesso facilitado.
+
+\subsection{Implementação das CAs}
+\label{sub:dittor_impl_cas}
+
+Para a emissão da credencial são implementadas duas mensagens Babel, \texttt{CredentialRequestMsg} e \texttt{CredentialReplyMsg}, para comunicação no fluxo do pedido e resposta entre as CAs. Como trabalho futuro, é considerada uma verificação de posse da testemunha. A implementação da assinatura parcial cega é feita a partir de \texttt{issueSignatureShare()}, assinando o compromisso cego com a chave secreta de cada CA: \texttt{blindedCommit.pow(secretKeyShare)}. A emissão da credencial não é persistente, garantindo que o processo de emissão seja realizado sem estado.
+
+\subsection{Implementação das DAs}
+\label{sub:dittor_impl_das}
+
+O registo do novo nó é feito com os elementos $g_1^x$, $\sigma$ e a prova DLEQ na mensagem Babel \texttt{RegisterRelayMsg}. A implementação da tabela de pseudónimos é feita em \texttt{DA.java}, com uma estrutura de dados de \texttt{HashMap}. A prova de pertença a uma família de nós é feita na comparação com \texttt{family\_ids}, isto é o campo do \textit{node descriptor} com os identificadores dos nós da mesma família do atual.
+
+Existem três implementações das DAs: a implementação criptográfica e Babel da DA; a \textit{bridge} DA que comunica com o código em C; e as DAs implementadas originalmente no código Tor. A união das duas implementações Java das DAs (a vertente criptográfica e a \textit{bridge}) é considerada uma simplificação futura da arquitetura, fora do âmbito desta implementação.
+
+\subsection{Implementação da Verificação da Prova Dittor}
+\label{sub:dittor_impl_verificacao}
+
+A implementação da verificação matemática das três provas (DY-VRF, DLEQ e equação bilinear da credencial) foi realizada nas suas classes em Java com o código referente à criptografia. Caso o \textit{backend} em Java da validação da prova não responda, é tratado como um erro de \textit{timeout} ou \textit{crash}, de forma a garantir um comportamento \textit{fail-safe}.
+
+\subsection{Integração com o Tor}
+\label{sub:dittor_impl_integracao_tor}
+
+A implementação do \textit{socket} TCP foi realizada em \texttt{dittor\_proxy.c}, para comunicar com a \textit{bridge} Java das DAs. A prova Dittor é explícita num novo documento, \texttt{dittor\_proof.txt}, com todos os campos da prova.
+
+\subsection{Considerações de Performance}
+\label{sub:dittor_impl_performance}
+
+A análise detalhada do desempenho do Dittor é realizada no capítulo do Desempenho, na próxima secção. Nesta secção são definidas que decisões de implementação foram motivadas por desempenho.
+
+A escolha da curva BLS12-381 equilibra segurança e desempenho, garantindo o nível de 128 bits recomendado para uso em produção com dimensões reduzidas de elementos em $G_1$, tal como enunciado na secção do Background. A separação do código Java e C foi em prol da implementação do Dittor, como explicado no capítulo de Integração, sacrificando o desempenho do projeto - dado o \textit{overhead} do \textit{socket} - por simplicidade da integração e portabilidade no futuro.
