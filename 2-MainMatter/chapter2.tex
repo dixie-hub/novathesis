@@ -16,11 +16,11 @@
 \section{Metodologia de Pesquisa}
 \label{sec:introducao}
 
-A revisão de literatura foi orientada pela necessidade de identificar, analisar e formalizar as soluções criptográficas e relacionais para a mitigação de Sybil Attacks. O processo de seleção bibliográfica foi realizado com três pilares fundamentais: orientação de especialistas na área, pesquisa em bases de dados académicas e filtragem por critérios de relevância temática.
+A revisão de literatura foi orientada pela necessidade de identificar, analisar e formalizar as soluções criptográficas e relacionais para a mitigação de \textit{Sybil attacks}. O processo de seleção bibliográfica foi realizado com três pilares fundamentais: orientação de especialistas na área, pesquisa em bases de dados académicas e filtragem por critérios de relevância temática.
 
-Inicialmente, grande parte dos recursos académicos de pesquisa foram recomendados pela equipa de Network Health do Tor, que contribuíram para este projeto prestando auxílio em dúvidas que surgissem e direcionando-o de forma a que fosse útil para o futuro do Tor. A recolha de artigos científicos foi realizada no Google Scholar e estendida a repositórios oficiais como o IACR Cryptology ePrint Archive, USENIX Security, IEEE Symposium on Security and Privacy e ACM CCS, usando palavras-chaves como “Sybil attack”, “Tor” e “Nym” na procura de novos artigos, sendo este último uma solução implementada e um ponto de partida. O uso de Large Language Models foi produtivo na exploração de novos tópicos e no entendimento profundo de cada conceito, tendo as fontes sugeridas devidamente validadas de acordo com as bases de dados académicas e o uso realizado de forma crítica. Dentro deste tópico, o uso do Gemini facilitou a pesquisa e explicação dos conceitos criptográficos, que foram avaliados de forma crítica na verificação das fontes e na respetiva reputação, onde toda a informação construída foi oriunda de documentos avaliados academicamente na plataforma do Google Scholar. A possibilidade de leitura dos documentos assentou em critérios como a especificidade do tópico pretendido no resumo dos mesmos.
+Inicialmente, grande parte dos recursos académicos de pesquisa foram recomendados pela equipa de Network Health do Tor, que contribuíram para este projeto prestando auxílio em dúvidas que surgissem e direcionando-o de forma a que fosse útil para o futuro do Tor. A recolha de artigos científicos foi realizada no Google Scholar e estendida a repositórios oficiais como o IACR Cryptology ePrint Archive, USENIX Security, IEEE Symposium on Security and Privacy e ACM CCS, usando palavras-chaves como “\textit{Sybil attack}”, “Tor” e “Nym” na procura de novos artigos, sendo este último uma solução implementada e um ponto de partida. O uso de Large Language Models foi produtivo na exploração de novos tópicos e no entendimento profundo de cada conceito, tendo as fontes sugeridas devidamente validadas de acordo com as bases de dados académicas e o uso realizado de forma crítica. Dentro deste tópico, o uso do Gemini facilitou a pesquisa e explicação dos conceitos criptográficos, que foram avaliados de forma crítica na verificação das fontes e na respetiva reputação, onde toda a informação construída foi oriunda de documentos avaliados academicamente na plataforma do Google Scholar. A possibilidade de leitura dos documentos assentou em critérios como a especificidade do tópico pretendido no resumo dos mesmos.
 
-Após a construção de uma base de tópicos e de pesquisa por artigos que aprofundassem a solução para mitigação de Sybil attacks, foi usado, como método de avaliação da importância do artigo, a profundidade da ligação entre a proposta do mesmo e este tipo de ataques, garantindo assim uma pesquisa sequencialmente mais analítica e pormenorizada do estudo, obedecendo a um processo sequencial de triagem:
+Após a construção de uma base de tópicos e de pesquisa por artigos que aprofundassem a solução para mitigação de \textit{Sybil attacks}, foi usado, como método de avaliação da importância do artigo, a profundidade da ligação entre a proposta do mesmo e este tipo de ataques, garantindo assim uma pesquisa sequencialmente mais analítica e pormenorizada do estudo, obedecendo a um processo sequencial de triagem:
 
 \begin{itemize}
     \item \textbf{(Avaliação Inicial)} Avaliação dos títulos e resumos para verificar a aplicabilidade do conceito descrito ao tema;
@@ -40,57 +40,58 @@ O Tor Browser constitui a porta de entrada principal para a Rede Tor apesar de s
     \item \textbf{(Evasão à Censura)} Permite evasão à censura ao permitir ligações a websites bloqueados na região do utilizador, evadindo restrições geográficas.
 \end{itemize}
 
-Estas três propriedades resultam da arquitetura da rede, que faz uso de servidores distribuídos mundialmente e mantidos por voluntários - denominados de relays - para estabelecer circuitos de conexões TCP encriptadas entre o browser e o website ou serviço pretendido.
+Estas três propriedades resultam da arquitetura da rede, que faz uso de servidores distribuídos mundialmente e mantidos por voluntários - denominados de \textit{relays} - para estabelecer circuitos de conexões TCP encriptadas entre o browser e o website ou serviço pretendido.
 
 \subsection{Onion Routing e Construção de Circuitos}
+\label{sub:onion_routing_circuitos}
 
 O Tor teve a sua origem no projeto de onion routing do U.S Naval Research Laboratory, razão pela qual adotou o acrónimo TOR (The Onion Router). O seu princípio base assenta no onion routing, uma técnica que utiliza encriptação por camadas para encapsular dados e direcioná-los pela rede.
 
-Enquanto o onion routing original usa diretamente as chaves públicas de cada nó no percurso para encriptar a mensagem, o Tor Browser estabelece previamente um circuito Tor composto por três relays. Este circuito é construído por um mecanismo incremental de telescoping que permite que o utilizador negocie chaves de sessão efémeras em cada salto sucessivo do circuito, garantindo que chaves de longo prazo comprometidas no futuro não expõem tráfego no passado (perfect forward secrecy). Para criar um circuito, é necessário enviar uma célula de criação para o primeiro nó no caminho escolhido. Para construir esta célula, são negociadas chaves através do handshake de Diffie-Hellman, enviando a primeira parte do handshake, $(g^x)$, encriptada pela chave do relay de destino, e recebendo uma célula de criação com $g^y$ e um hash da chave negociada, $K=g^{xy}$. Após a criação do circuito, é possível comunicar usando a chave negociada, que é usada para o envio da próxima informação relativa ao próximo nó do circuito.
+Enquanto o onion routing original usa diretamente as chaves públicas de cada nó no percurso para encriptar a mensagem, o Tor Browser estabelece previamente um circuito Tor composto por três \textit{relays}. Este circuito é construído por um mecanismo incremental de telescoping que permite que o utilizador negocie chaves de sessão efémeras em cada salto sucessivo do circuito, garantindo que chaves de longo prazo comprometidas no futuro não expõem tráfego no passado (perfect forward secrecy). Para criar um circuito, é necessário enviar uma célula de criação para o primeiro nó no caminho escolhido. Para construir esta célula, são negociadas chaves através do handshake de Diffie-Hellman, enviando a primeira parte do handshake, $(g^x)$, encriptada pela chave do \textit{relay} de destino, e recebendo uma célula de criação com $g^y$ e um \textit{hash} da chave negociada, $K=g^{xy}$. Após a criação do circuito, é possível comunicar usando a chave negociada, que é usada para o envio da próxima informação relativa ao próximo nó do circuito.
 
 O cliente encripta a mensagem com três camadas de chaves simétricas, na ordem inversa do circuito, de forma a que cada chave simétrica seja a camada exterior da encriptação, permitindo que a desencriptação revele apenas o endereço do próximo nó do circuito.
 
-O Tor Circuit estabelecido é constituído por três relays, cuja definição é a seguinte \cite{dingledine2004tor}:
+O Tor Circuit estabelecido é constituído por três \textit{relays}, cuja definição é a seguinte \cite{dingledine2004tor}:
 
 \begin{enumerate}
-    \item \textbf{(Entry/Guard)} Como primeiro nó do circuito, é designado por Entry Guard pelas Directory Authorities e é responsável por desencriptar a camada exterior do pacote de dados enviado pelo emissor, sendo o único nó capaz de observar o endereço IP real do utilizador \cite{mccoy2008shining};
+    \item \textbf{(Entry/Guard)} Como primeiro nó do circuito, é designado por Entry Guard pelas \textit{Directory Authorities} e é responsável por desencriptar a camada exterior do pacote de dados enviado pelo emissor, sendo o único nó capaz de observar o endereço IP real do utilizador \cite{mccoy2008shining};
     \item \textbf{(Middle)} Como segundo nó do circuito, é responsável por desencriptar a camada intermédia do pacote de dados enviado pelo entry node. Tem acesso ao endereço IP do guard, mas não do emissor da mensagem. Ao desencriptar, revela o endereço IP do último nó do circuito, sem saber o destinatário \cite{barker2011using};
     \item \textbf{(Exit)} Como terceiro e último nó do circuito, é responsável por desencriptar a última camada do pacote de dados enviado pelo middle node. A desencriptação revela o destinatário do pacote, podendo então enviá-lo da rede Tor para o servidor pretendido na Internet, sendo o único nó com conhecimento sobre o destinatário \cite{mccoy2008shining}.
 \end{enumerate}
 
-Esta arquitetura assegura unlinkability entre o emissor e o recetor da informação, impedindo que uma única entidade no circuito consiga correlacionar a origem e o destino da comunicação, exceptuando casos em que o controlo de dois ou mais nós no percurso pertence a uma única entidade.
+Esta arquitetura assegura \textit{unlinkability} entre o emissor e o recetor da informação, impedindo que uma única entidade no circuito consiga correlacionar a origem e o destino da comunicação, exceptuando casos em que o controlo de dois ou mais nós no percurso pertence a uma única entidade.
 
 \subsubsection{Ataques de Correlação de Tráfego}
 
-A garantia de unlinkability entre o emissor e o recetor de uma comunicação, resultante da arquitetura de três saltos apresentada na secção anterior, assenta na premissa de que nenhum nó individual do circuito tem acesso simultâneo à identidade do emissor e à do destinatário. Um ataque de correlação de tráfego consiste precisamente em contornar esta garantia, não através da quebra da encriptação por camadas, mas através da observação e comparação de padrões de tráfego nas duas extremidades do circuito.
+A garantia de \textit{unlinkability} entre o emissor e o recetor de uma comunicação, resultante da arquitetura de três saltos apresentada na Secção~\ref{sub:onion_routing_circuitos}, assenta na premissa de que nenhum nó individual do circuito tem acesso simultâneo à identidade do emissor e à do destinatário. Um ataque de correlação de tráfego consiste precisamente em contornar esta garantia, não através da quebra da encriptação por camadas, mas através da observação e comparação de padrões de tráfego nas duas extremidades do circuito.
 
 A encriptação do Tor protege o conteúdo e o encaminhamento da mensagem ao longo do circuito, mas não oculta características observáveis do tráfego em si, como o momento exato de envio dos pacotes, o seu volume ou o intervalo entre eles. Caso um atacante consiga observar simultaneamente o tráfego que entra no primeiro nó do circuito (o guard) e o tráfego que sai do último (o exit), é possível correlacionar estes padrões temporais e concluir, com elevada probabilidade, que ambos pertencem à mesma sessão de comunicação, revelando desta forma a ligação entre o utilizador e o destino, mesmo sem nunca decifrar o conteúdo transmitido \cite{mccoy2008shining, barker2011using}.
 
 Este tipo de ataque pode ser realizado de forma passiva, quando o atacante se limita a observar o tráfego sem o alterar, ou de forma ativa, introduzindo padrões artificiais no tráfego (por exemplo, através de watermarking) para facilitar a correlação com menor margem de erro. Em qualquer dos casos, a condição necessária para o sucesso do ataque é a mesma: o controlo, ou a capacidade de observação, de ambas as extremidades do mesmo circuito.
 
-É nesta condição que reside a relevância do Sybil Attack para a rede Tor. Caso um único adversário consiga controlar múltiplas identidades de relays na rede, aumenta significativamente a probabilidade estatística de que, para um dado circuito, tanto o guard como o exit selecionados pertençam a essa mesma entidade maliciosa, tornando trivial a realização do ataque de correlação já descrito. A mitigação de Sybil Attacks é, portanto, um pré-requisito para a preservação da unlinkability que a arquitetura da rede Tor pretende garantir, não um objetivo de segurança independente.
+É nesta condição que reside a relevância do \textit{Sybil attack} para a rede Tor. Caso um único adversário consiga controlar múltiplas identidades de \textit{relays} na rede, aumenta significativamente a probabilidade estatística de que, para um dado circuito, tanto o guard como o exit selecionados pertençam a essa mesma entidade maliciosa, tornando trivial a realização do ataque de correlação já descrito. A mitigação de \textit{Sybil attacks} é, portanto, um pré-requisito para a preservação da \textit{unlinkability} que a arquitetura da rede Tor pretende garantir, não um objetivo de segurança independente.
 
 \subsection{Directory Authorities e Tor Consensus}
 
-Um conjunto restrito de nós de elevada confiança na rede Tor desempenha o papel fundamental de Directory Authorities ou DAs. As DAs são responsáveis por gerar e publicar um consenso da rede - um documento único e acordado entre todas - com uma lista de todos os relays ativos e os seus respetivos estados.
+Um conjunto restrito de nós de elevada confiança na rede Tor desempenha o papel fundamental de \textit{Directory Authorities} ou DAs. As DAs são responsáveis por gerar e publicar um consenso da rede - um documento único e acordado entre todas - com uma lista de todos os \textit{relays} ativos e os seus respetivos estados.
 
-Como cooperação, os relays enviam periodicamente às DAs um documento assinado com o seu estado, o seu relay descriptor. As DAs agregam e validam estes relay descriptors para produzir o Tor Consensus, um documento usado pelo software do cliente durante o carregamento inicial para obter informações sobre o estado da atual da rede \cite{dingledine2004tor}. Este trabalho visa explorar o processo de submissão e validação destes relay descriptors para mitigar eventuais ataques.
+Como cooperação, os \textit{relays} enviam periodicamente às DAs um documento assinado com o seu estado, o seu \textit{relay} descriptor. As DAs agregam e validam estes \textit{relay} descriptors para produzir o \textit{Tor Consensus}, um documento usado pelo software do cliente durante o carregamento inicial para obter informações sobre o estado da atual da rede \cite{dingledine2004tor}. Este trabalho visa explorar o processo de submissão e validação destes \textit{relay} descriptors para mitigar eventuais ataques.
 
 \subsection{Node Families}
 
-O conceito de família de nós foi formalizado no Tor para agrupar múltiplos relays operados pela mesma entidade ou organização \cite{dingledine2004tor}. De forma a mitigar ataques de correlação de tráfego, o algoritmo de seleção de rotas evita nodes na mesma família dentro do mesmo circuito \cite{wang2013empirical}. Esta associação é declarada pelos próprios operadores dos nós nos relay descriptors, de forma a que não sejam selecionados múltiplos nós sob o mesmo controlo operacional para o mesmo circuito \cite{tor_dirspec_serverdesc}.
+O conceito de família de nós foi formalizado no Tor para agrupar múltiplos \textit{relays} operados pela mesma entidade ou organização \cite{dingledine2004tor}. De forma a mitigar ataques de correlação de tráfego, o algoritmo de seleção de rotas evita nodes na mesma família dentro do mesmo circuito \cite{wang2013empirical}. Esta associação é declarada pelos próprios operadores dos nós nos \textit{relay} descriptors, de forma a que não sejam selecionados múltiplos nós sob o mesmo controlo operacional para o mesmo circuito \cite{tor_dirspec_serverdesc}.
 
 \subsection{Node Descriptors}
 
-Um node descriptor é um documento estruturado em texto simples que contém as chaves de identidade de longo prazo do nó, as onion keys efémeras para a negociação de circuitos, o endereço IP, portas de comunicação, uptime, largura de banda e a declaração de pertença a famílias de relays \cite{tor_dirspec_serverdesc}. Este documento é assinado com a chave privada de identidade do próprio relay, garantindo às DAs que o ficheiro não foi adulterado por terceiros.
+Um \textit{node descriptor} é um documento estruturado em texto simples que contém as chaves de identidade de longo prazo do nó, as onion keys efémeras para a negociação de circuitos, o endereço IP, portas de comunicação, uptime, largura de banda e a declaração de pertença a famílias de \textit{relays} \cite{tor_dirspec_serverdesc}. Este documento é assinado com a chave privada de identidade do próprio \textit{relay}, garantindo às DAs que o ficheiro não foi adulterado por terceiros.
 
-De forma a poupar largura de banda no download efetuado pelos clientes, as DAs condensam os relay descriptors em microdescriptors, mantendo apenas os campos mais relevantes para os clientes \cite{tor_dirspec_microdesc}.
+De forma a poupar largura de banda no \textit{download} efetuado pelos clientes, as DAs condensam os \textit{relay} descriptors em microdescriptors, mantendo apenas os campos mais relevantes para os clientes \cite{tor_dirspec_microdesc}.
 
 \subsection{Sybil Attacks no Tor}
 
-Apesar do longo desenvolvimento da rede Tor, o Sybil Attack continua a ser uma das suas maiores ameaças \cite{douceur2002sybil}. Este ataque consiste na criação de múltiplas entidades falsas denominadas de sybils, geridas por um único adversário. No contexto de redes como o Tor, a presença de uma densidade elevada de nós maliciosos compromete diretamente a unlinkability entre o emissor e o destino. Caso um atacante consiga controlar múltiplas identidades dentro da rede, surge a possibilidade de realizar ataques de correlação de tráfego ao controlar simultaneamente o nó guard e o exit do mesmo circuito, revelando o endereço IP real do utilizador e consequentemente quebrando a garantia de anonimato do sistema.
+Apesar do longo desenvolvimento da rede Tor, o \textit{Sybil attack} continua a ser uma das suas maiores ameaças \cite{douceur2002sybil}. Este ataque consiste na criação de múltiplas entidades falsas denominadas de \textit{sybils}, geridas por um único adversário. No contexto de redes como o Tor, a presença de uma densidade elevada de nós maliciosos compromete diretamente a \textit{unlinkability} entre o emissor e o destino. Caso um atacante consiga controlar múltiplas identidades dentro da rede, surge a possibilidade de realizar ataques de correlação de tráfego ao controlar simultaneamente o nó guard e o exit do mesmo circuito, revelando o endereço IP real do utilizador e consequentemente quebrando a garantia de anonimato do sistema.
 
-A mitigação de Sybil Attacks permanece um desafio em aberto no domínio dos sistemas distribuídos e redes peer-to-peer. Várias arquiteturas \cite{cvrcek2004role, dingledine2004synchronous, serjantov2004dealing, shneidman2004faithfulness} - como sistemas robustos de nomes distribuídos \cite{awerbuch2004robust}, processadores de pesquisas em escala Internet \cite{huebsch2005architecture} e algoritmos de routing por Distributed Hash Tables \cite{marti2004sprout} - identificaram o Sybil Attack como uma ameaça no passado, sem apresentar soluções viáveis em cenários descentralizados. A abordagem de Douceur de mitigação baseada numa autoridade central de certificação \cite{douceur2002sybil} é conceptualmente incompatível com o modelo de confiança e a topologia aberta do Tor e, apesar dos estudos sobre o impacto do Sybil Attack em sistemas anónimos \cite{acquisti2003economics}, continua a não existir uma solução ideal para combater este ataque.
+A mitigação de \textit{Sybil attacks} permanece um desafio em aberto no domínio dos sistemas distribuídos e redes peer-to-peer. Várias arquiteturas \cite{cvrcek2004role, dingledine2004synchronous, serjantov2004dealing, shneidman2004faithfulness} - como sistemas robustos de nomes distribuídos \cite{awerbuch2004robust}, processadores de pesquisas em escala Internet \cite{huebsch2005architecture} e algoritmos de routing por \textit{Distributed Hash Tables} \cite{marti2004sprout} - identificaram o \textit{Sybil attack} como uma ameaça no passado, sem apresentar soluções viáveis em cenários descentralizados. A abordagem de Douceur de mitigação baseada numa autoridade central de certificação \cite{douceur2002sybil} é conceptualmente incompatível com o modelo de confiança e a topologia aberta do Tor e, apesar dos estudos sobre o impacto do \textit{Sybil attack} em sistemas anónimos \cite{acquisti2003economics}, continua a não existir uma solução ideal para combater este ataque.
 
 \section{Identidade Digital}
 
@@ -141,7 +142,7 @@ Um DID pode funcionar como um Uniform Resource Locator (URL), ao apontar para a 
         \item \textbf{(Update)} Define como é que o conteúdo pode ser atualizado;
         \item \textbf{(Deactivate)} Define como é que o DID pode ser desativado.
     \end{itemize}
-    \item \textbf{(Method-Specific Identifier)} Identificador único do método do DID, permitindo distinguir os que são baseados em blockchains de outras DLTs, por exemplo \cite{preukschat2021self}.
+    \item \textbf{(Method-Specific Identifier)} Identificador único do método do DID, permitindo distinguir os que são baseados em \textit{blockchains} de outras DLTs, por exemplo \cite{preukschat2021self}.
 \end{itemize}
 
 \subsubsection{Propriedades}
@@ -158,7 +159,7 @@ O W3C DID Working Group estabeleceu quatro propriedades fundamentais para estes 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\textwidth]{5-Figures/DID.png}
-    \caption{Exemplo de documento de DID com bloco de autenticação, chave pública, bloco de serviço e endpoint, como mencionado no ponto 4.}
+    \caption{Exemplo de documento de DID com bloco de autenticação, chave pública, bloco de serviço e endpoint, como mencionado no ponto 4}
     \label{fig:did-example}
 \end{figure}
 
@@ -169,7 +170,7 @@ Para encontrar a ferramenta certa para identificar utilizadores de forma descent
 Preukschat e Reed definem em 2024 as seguintes categorias de métodos DID desenvolvidas a partir de agosto de 2020 \cite{preukschat2021self}:
 
 \begin{itemize}
-    \item \textbf{(Ledger-based DIDs)} Categoria original de DID methods que envolvem uma blockchain ou outra DLT, que envolve todas as operações numa ledger pública distribuída na rede com assinatura com chave privada do próprio;
+    \item \textbf{(Ledger-based DIDs)} Categoria original de DID methods que envolvem uma \textit{blockchain} ou outra DLT, que envolve todas as operações numa ledger pública distribuída na rede com assinatura com chave privada do próprio;
     \item \textbf{(Ledger Middleware DIDs)} Melhoria dos Ledger-based DIDs, faz uso de uma camada intermédia entre o registo e o DID, de forma a que as transações possam ser agregadas para uma única entrada na tabela, otimizando o processo;
     \item \textbf{(Peer DIDs)} DIDs que não necessitam de uma camada pública de registo, operando exclusivamente através de redes peer-to-peer, possibilitando apenas a partilha do DID com apenas um peer ou grupo de peers, dando uso do protocolo de partilha da rede para a transmissão do identificador;
     \item \textbf{(Static DIDs)} Categoria de DIDs que permite criação e resolução, mas não permite alterações ou desativação, criados deterministicamente a partir de uma chave pública;
@@ -243,7 +244,7 @@ De acordo com a relação estrutural entre os grupos $G_1$ e $G_2$ e a existênc
 
 \begin{itemize}
     \item \textbf{(Tipo 1 - Simétrico)} $G_1 = G_2$;
-    \item \textbf{(Tipo 2)} $G_1 \neq G_2$ e $\exists \, \psi : G_2 \rightarrow G_1$, tal que $\psi$ é um homomorfismo computável de forma eficiente, e $\nexists \, H : \{0,1\}^* \rightarrow G_2$, sendo $H$ uma função de hash eficiente com imagem em $G_2$ \cite{carter1977universal};
+    \item \textbf{(Tipo 2)} $G_1 \neq G_2$ e $\exists \, \psi : G_2 \rightarrow G_1$, tal que $\psi$ é um homomorfismo computável de forma eficiente, e $\nexists \, H : \{0,1\}^* \rightarrow G_2$, sendo $H$ uma função de \textit{hash} eficiente com imagem em $G_2$ \cite{carter1977universal};
     \item \textbf{(Tipo 3)} $G_1 \neq G_2$ e $\nexists \, \psi : G_2 \rightarrow G_1$, para a mesma definição de $\psi$;
     \item \textbf{(Tipo 4)} $G_1 \neq G_2$ e $\exists \, \psi : G_2 \rightarrow G_1$, para a mesma definição de $\psi$, e $\exists \, H : \{0,1\}^* \rightarrow G_2$, para a mesma definição de $H$.
 \end{itemize}
@@ -281,12 +282,12 @@ Torben Pedersen propôs um esquema de compromisso baseado na dureza do Problema 
 O protocolo do compromisso de Pedersen entre um emissor $C$, que detém o segredo $m$, e um verificador $R$, decorre em duas fases \cite{metere2017automated}:
 
 \begin{itemize}
-    \item \textbf{Fase de Compromisso}
+    \item \textbf{Fase de Compromisso:}
     \begin{itemize}
         \item Os parâmetros públicos do grupo $(G_q, q, g, h)$ são definidos;
         \item $C$ escolhe uniformemente $r \xleftarrow{R} \mathbb{Z}_q$, calcula $c = g^m h^r \pmod{p}$ e envia-o para $R$.
     \end{itemize}
-    \item \textbf{Fase de Verificação}
+    \item \textbf{Fase de Verificação:}
     \begin{itemize}
         \item $C$ revela o par $(m, r)$ a $R$;
         \item $R$ verifica se $c = g^m h^r \pmod{p}$. Caso a igualdade se verifique, aceita o compromisso, caso contrário rejeita-o.
@@ -307,7 +308,7 @@ O compromisso de Pedersen garante três propriedades fundamentais \cite{demirel2
     \end{align*}
 \end{itemize}
 
-Estas propriedades são determinantes para a arquitetura de mitigação de \textit{Sybil Attacks} na rede Tor, permitindo que o operador de um nó oculte a sua identidade real ou atributos ao solicitar credenciais às Directory Authorities, provando relações algébricas sobre os seus dados sem os expor.
+Estas propriedades são determinantes para a arquitetura de mitigação de \textit{Sybil attacks} na rede Tor, permitindo que o operador de um nó oculte a sua identidade real ou atributos ao solicitar credenciais às \textit{Directory Authorities}, provando relações algébricas sobre os seus dados sem os expor.
 
 \subsection{Encriptação de ElGamal}
 
@@ -604,7 +605,7 @@ O SASSI (\textit{Sybil-Resilient Anonymous Signatures with Stateless Issuing}) c
 
 \begin{enumerate}
     \item Emissão das chaves secretas de cada utilizador como uma função determinística da sua identidade única com a chave secreta conjunta das entidades emissoras;
-    \item Geração de assinaturas anónimas e resilientes a Sybils por utilizadores a partir das chaves secretas obtidas.
+    \item Geração de assinaturas anónimas e resilientes a \textit{sybils} por utilizadores a partir das chaves secretas obtidas.
 \end{enumerate}
 
 A chave secreta do utilizador no SASSI é derivada a partir de duas DY-VRFs \cite{dodis2005verifiable}, cujas partes são geradas cooperativamente através de um protocolo limiar interativo. O uso de DY-VRFs torna-se ideal para o seu efeito, tornando o protocolo de emissão limitada de credenciais uma vertente distribuída deste tipo de provas, garantindo que a entidade emissora não observa a identidade do utilizador e que um atacante necessitaria de $t$ entidades emissoras para comprometer a privacidade do sistema.
@@ -619,7 +620,7 @@ A fase de \textbf{geração de chaves} (\textit{KeyGen}) começa pela distribui�
 
 A \textbf{geração da assinatura} é realizada por um utilizador a partir da sua chave secreta derivada e do par de contexto $ctx$ e mensagem $m$, gerando uma assinatura associada a esse mesmo par. O utilizador anexa então a assinatura a um pseudónimo $y_{ctx} = VRF_{sk}(ctx)$ juntamente com uma ZKP, provando que a assinatura e o pseudónimo foram bem formados.
 
-A fase da \textbf{verificação} começa para uma entidade verificadora quando recebe uma mensagem que inclui a chave de verificação do emissor de credenciais, um par de contexto e mensagem, e uma assinatura, que é verificada e associada ao pseudónimo extraído. A entidade verificadora verifica a validade da ZKP e extrai o pseudónimo $y_{ctx}$. Este pseudónimo é então comparado com os pseudónimos anteriormente observados para o mesmo contexto através de uma tabela local. Caso o par $(ctx, y_{ctx})$ já exista, a ação é identificada como uma tentativa de \textit{Sybil Attack}.
+A fase da \textbf{verificação} começa para uma entidade verificadora quando recebe uma mensagem que inclui a chave de verificação do emissor de credenciais, um par de contexto e mensagem, e uma assinatura, que é verificada e associada ao pseudónimo extraído. A entidade verificadora verifica a validade da ZKP e extrai o pseudónimo $y_{ctx}$. Este pseudónimo é então comparado com os pseudónimos anteriormente observados para o mesmo contexto através de uma tabela local. Caso o par $(ctx, y_{ctx})$ já exista, a ação é identificada como uma tentativa de \textit{Sybil attack}.
 
 \subsection{Integração com Peer DID}
 
