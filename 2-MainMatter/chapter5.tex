@@ -51,11 +51,7 @@ Dadas as propriedades enunciadas pelo SASSI, o processo de geração do pseudón
 \section{Desempenho}
 \label{sec:avaliacao_desempenho_intro}
 
-A implementação do Dittor apresenta resultados de desempenho com uma diferença negligenciável dos Requisitos de Solução enunciados no início do documento. Para comparar, apresenta-se uma tabela que verifica esta diferença:
-
-\textit{(inserir tabela quando houver resultados testados)}
-
-O Chutney foi usado como ambiente para medição dos resultados, sendo uma ferramenta de simulação de redes Tor. Salienta-se o custo isolado do DKG, dado ser uma configuração única executada no início do sistema, enquanto o custo por registo de operador de nó é recorrente.
+A implementação do Dittor apresenta resultados de desempenho com uma diferença negligenciável face aos Requisitos da Solução enunciados no início do documento. A verificação de um \textit{node descriptor} na \textit{bridge} tem um custo de cerca de 20 a 23 milissegundos, e o registo completo de um novo operador de nó, desde o pedido às CAs até à resposta da DA, ronda os 167 milissegundos - valores que constam dentro das margens de latência e construção de circuitos já enunciadas na Tabela~\ref{tab:tor-metrics}. O custo de configuração inicial do DKG entre as CAs, entre 100 milissegundos e 2 segundos consoante a ordem de arranque, é um custo único do sistema, não recorrente por operador de nó. O Chutney foi usado como ambiente de simulação de redes Tor para a medição destes resultados. A análise detalhada de cada um destes valores, com as respetivas tabelas e amostras, é apresentada na Secção~\ref{sub:teste_desempenho}.
 
 \section{Possíveis Ataques e Respostas aos Mesmos}
 \label{sec:avaliacao_possiveis_ataques}
@@ -64,9 +60,9 @@ Dado o Modelo de Atacante apresentado, a possibilidade de execução de qualquer
 
 Caso $t$ CAs trabalhem em conjunto (\textit{colluding}), conseguem derivar a chave mestra secreta, contudo não é possível derivar as identidades dos utilizadores que fizeram pedidos porque a sua identidade nunca chega a ser revelada. Por outras palavras, se um atacante conseguir comprometer $t$ CAs, apenas permite-lhe emitir novos certificados, não deanonimizar os utilizadores, satisfazendo a propriedade de anonimato. Como é esperado que o atacante consiga corromper até $t-1$ CAs, forjar credenciais não é contemplado como uma ameaça.
 
-O anonimato dos utilizadores é teoricamente impossível de quebrar, como explicado previamente. Forjar provas de Schnorr, DY-VRF ou DLEQs não é uma ameaça, como explicado nas propriedades de segurança de cada uma destas primitivas. Apesar de um atacante passivo poder escutar as comunicações do sistema, não é possível inferir nenhuma informação, dado todo o processo de emissão de credenciais ser \textit{unlinkable}, juntamente com as garantias de \textit{context-bound unlinkability} da emissão dos pseudónimos.
+O anonimato dos utilizadores é teoricamente impossível de quebrar, como explicado previamente. Forjar provas DY-VRF ou DLEQs não é uma ameaça, como explicado nas propriedades de segurança de cada uma destas primitivas. Apesar de um atacante passivo poder escutar as comunicações do sistema, não é possível inferir nenhuma informação, dado todo o processo de emissão de credenciais ser \textit{unlinkable}, juntamente com as garantias de \textit{context-bound unlinkability} da emissão dos pseudónimos.
 
-A injeção de mensagens é redundante, visto que o uso da credencial é unicamente válido pelo utilizador que possuir o segredo $x$ (\textit{holder binding}). A associação de identidades diferentes entre a DY-VRF e a assinatura das CAs não é possível, dada a prova DLEQ que garante que a identidade usada é a mesma. Os ataques de DoS também não são exequíveis, dado o caráter \textit{fail-safe} enunciado na \textit{bridge} Java das DAs.
+A injeção de mensagens é redundante, visto que o uso da credencial é unicamente válido pelo utilizador que possuir o segredo $x$ (\textit{holder binding}). A associação de identidades diferentes entre a DY-VRF e a assinatura das CAs não é possível, dada a prova DLEQ que garante que a identidade usada é a mesma. Um ataque de DoS contra a \textit{bridge} Java das DAs não compromete a disponibilidade da rede Tor, dado o caráter \textit{fail-open} do sistema: os \textit{node descriptors} continuam a ser aceites durante essa janela temporal, não impondo resistência a \textit{Sybil} enquanto o \textit{backend} estiver indisponível — um \textit{trade-off} consciente, não uma ausência de ameaça de DoS.
 
 \section{Testes e Experiências}
 \label{sec:avaliacao_testes}

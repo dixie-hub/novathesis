@@ -570,7 +570,7 @@
     \int_set:Nn \g__aid_authors_int { \clist_count:N \g__aid_authors_clist }
 
     \int_compare:nNnTF { \g__aid_authors_int } = { 1 }
-      { 
+      {
         \tl_set:Nx \l__aid_author_list_tl { #1 }
         \__aid_fetch_string:nN { declares } \l__aid_declares_verb_tl
         \__aid_fetch_string:nN { acknowledges } \l__aid_acknowledges_verb_tl
@@ -596,7 +596,7 @@
 \cs_new_protected:Nn \__aid_prepare_preamble_string:
   {
     \__aid_fetch_string:nN { preamble } \l__aid_working_preamble_tl
-    
+
     % New Placeholders
     \tl_replace_all:Nnn \l__aid_working_preamble_tl { <author> } { \l__aid_author_noun_tl }
     \tl_replace_all:Nnn \l__aid_working_preamble_tl { <AUTHOR~LIST> } { \l__aid_author_list_tl }

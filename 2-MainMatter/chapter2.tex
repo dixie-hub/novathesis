@@ -30,7 +30,7 @@ Após a construção de uma base de tópicos e de pesquisa por artigos que aprof
 
 \section{A Rede Tor}
 
-O Tor Project é uma organização americana sem fins lucrativos que visa proteger a privacidade e os direitos humanos dos utilizadores na Internet, protegendo contra a monitorização e censura \cite{tor}. Esta organização é responsável pelo Tor Browser, um web-browser concebido para direcionar o tráfego do utilizador através da rede Tor. Este processo oculta o endereço IP real do utilizador, dificulta o rastreio online e protege contra mecanismos de censura, proporcionando garantias elevadas de anonimato \cite{browser}.
+O Tor Project é uma organização americana sem fins lucrativos que visa proteger a privacidade e os direitos humanos dos utilizadores na Internet, protegendo contra a monitorização e censura \cite{tor}. Esta organização é responsável pelo Tor Browser, um \textit{web-browser} concebido para direcionar o tráfego do utilizador através da rede Tor. Este processo oculta o endereço IP real do utilizador, dificulta o rastreio online e protege contra mecanismos de censura, proporcionando garantias elevadas de anonimato \cite{browser}.
 
 O Tor Browser constitui a porta de entrada principal para a Rede Tor apesar de ser possível aceder à rede com outros browsers, dado as suas propriedades de anonimato. Este navegador assegura três propriedades fundamentais:
 
@@ -59,7 +59,7 @@ O Tor Circuit estabelecido é constituído por três \textit{relays}, cuja defin
     \item \textbf{(Exit)} Como terceiro e último nó do circuito, é responsável por desencriptar a última camada do pacote de dados enviado pelo middle node. A desencriptação revela o destinatário do pacote, podendo então enviá-lo da rede Tor para o servidor pretendido na Internet, sendo o único nó com conhecimento sobre o destinatário \cite{mccoy2008shining}.
 \end{enumerate}
 
-Esta arquitetura assegura \textit{unlinkability} entre o emissor e o recetor da informação, impedindo que uma única entidade no circuito consiga correlacionar a origem e o destino da comunicação, exceptuando casos em que o controlo de dois ou mais nós no percurso pertence a uma única entidade.
+Esta arquitetura assegura \textit{unlinkability} entre o emissor e o recetor da informação, impedindo que uma única entidade no circuito consiga correlacionar a origem e o destino da comunicação, excetuando casos em que o controlo de dois ou mais nós no percurso pertence a uma única entidade.
 
 \subsubsection{Ataques de Correlação de Tráfego}
 
@@ -91,15 +91,15 @@ De forma a poupar largura de banda no \textit{download} efetuado pelos clientes,
 
 Apesar do longo desenvolvimento da rede Tor, o \textit{Sybil attack} continua a ser uma das suas maiores ameaças \cite{douceur2002sybil}. Este ataque consiste na criação de múltiplas entidades falsas denominadas de \textit{sybils}, geridas por um único adversário. No contexto de redes como o Tor, a presença de uma densidade elevada de nós maliciosos compromete diretamente a \textit{unlinkability} entre o emissor e o destino. Caso um atacante consiga controlar múltiplas identidades dentro da rede, surge a possibilidade de realizar ataques de correlação de tráfego ao controlar simultaneamente o nó guard e o exit do mesmo circuito, revelando o endereço IP real do utilizador e consequentemente quebrando a garantia de anonimato do sistema.
 
-A mitigação de \textit{Sybil attacks} permanece um desafio em aberto no domínio dos sistemas distribuídos e redes peer-to-peer. Várias arquiteturas \cite{cvrcek2004role, dingledine2004synchronous, serjantov2004dealing, shneidman2004faithfulness} - como sistemas robustos de nomes distribuídos \cite{awerbuch2004robust}, processadores de pesquisas em escala Internet \cite{huebsch2005architecture} e algoritmos de routing por \textit{Distributed Hash Tables} \cite{marti2004sprout} - identificaram o \textit{Sybil attack} como uma ameaça no passado, sem apresentar soluções viáveis em cenários descentralizados. A abordagem de Douceur de mitigação baseada numa autoridade central de certificação \cite{douceur2002sybil} é conceptualmente incompatível com o modelo de confiança e a topologia aberta do Tor e, apesar dos estudos sobre o impacto do \textit{Sybil attack} em sistemas anónimos \cite{acquisti2003economics}, continua a não existir uma solução ideal para combater este ataque.
+A mitigação de \textit{Sybil attacks} permanece um desafio em aberto no domínio dos sistemas distribuídos e redes peer-to-peer. Várias arquiteturas \cite{cvrcek2004role, dingledine2004synchronous, serjantov2004dealing, shneidman2004faithfulness} - como sistemas robustos de nomes distribuídos \cite{awerbuch2004robust}, processadores de pesquisas em escala Internet \cite{huebsch2005architecture} e algoritmos de routing por \textit{Distributed Hash Tables} \cite{marti2004sprout} - identificaram o \textit{Sybil attack} como uma ameaça no passado, sem apresentar soluções viáveis em cenários descentralizados. A abordagem de Douceur de mitigação baseada numa autoridade central de certificação \cite{douceur2002sybil} é conceptualmente incompatível com o modelo de confiança e a topologia aberta do Tor e, apesar dos estudos sobre os desafios económicos da implementação de sistemas de anonimato \cite{acquisti2003economics}, continua a não existir uma solução ideal para combater este ataque.
 
 \section{Identidade Digital}
 
 A identidade digital é definida como a representação digital de um sujeito \cite{sedlmeir2021digital}, agregando atributos que permitem responder a pedidos de identificação, autenticação e autorização no quotidiano digital. Frequentemente, esta identidade digital é associada ao sujeito através de um identificador único numa base de dados, como um nome de utilizador ou um número de identificação. Importa notar que o sujeito de uma identidade digital não se limita a pessoas singulares, podendo representar pessoas coletivas, dispositivos, serviços ou nós de uma rede.
 
-O meio digital rodeia o quotidiano humano, que torna a identidade digital uma necessidade e a sua gestão um requisito crítico. A imposição da identidade digital evolui para passaportes biométricos, que para o Reino Unido, por exemplo, começa a ser um futuro próximo \cite{bbc}. As palavras-passe como meio de verificação revelam-se cada vez mais vulneráveis a ataques de phishing, key-logging, vírus e malware \cite{herley2009so}, motivando a transição para novos tipos de autenticação.
+O meio digital rodeia o quotidiano humano, que torna a identidade digital uma necessidade e a sua gestão um requisito crítico. A imposição da identidade digital evolui para passaportes biométricos em diversos países. As palavras-passe como meio de verificação revelam-se cada vez mais vulneráveis a ataques de \textit{phishing}, \textit{key-logging}, vírus e \textit{malware} \cite{herley2009so}, motivando a transição para novos tipos de autenticação.
 
-Silos de armazenamento de informação de identidades digitais tornam-se alvos atrativos de ataques, denominados de honeypots. O comprometimento destes repositórios expõe informações valiosas e privadas, que regularmente não são salvaguardadas com o devido rigor criptográfico \cite{thomas2017data}, evidenciando a necessidade de paradigmas de identidade mais seguros e focados na privacidade.
+Silos de armazenamento de informação de identidades digitais tornam-se alvos atrativos de ataques, denominados de \textit{honeypots}. O comprometimento destes repositórios alimenta um ecossistema de roubo de credenciais que facilita a usurpação de contas \cite{thomas2017data}, evidenciando a necessidade de paradigmas de identidade mais seguros e focados na privacidade.
 
 \subsection{Credenciais Verificáveis}
 
@@ -119,7 +119,7 @@ A crescente utilização de credenciais verificáveis possibilita a descentraliz
 
 O adjetivo sovereign remonta para significados atualmente direcionados para independência e autonomia total que, dentro do contexto dos seus dados pessoais e, quando aplicado ao próprio, “self”, e adicionando a palavra “identity”, refere-se ao controlo total, independente e autónomo da identidade digital do próprio sobre os seus dados pessoais \cite{preukschat2021self}, o que reflete um novo paradigma relativo a quem, quando e sob que condições os seus atributos são partilhados, juntamente do uso de credenciais verificáveis e autonomia sobre as mesmas.
 
-O conceito de Self-Sovereign Identity (SSI) foi introduzido na comunidade por Tobin e Reed em 2016 \cite{tobin2016inevitable}, emergindo como resposta à ausência de uma camada de identidade na Internet. A dependência de pares de nomes de utilizador e palavras-passe, associada à criação de silos de dados centralizados em cada organização, é uma solução ineficiente, visto implicar custos de manutenção elevados e serem alvos atrativos de ataques, dado o valor alto da informação sensível de clientes. Como alternativa, o SSI promove o uso de tecnologias de registo distribuído (Distributed Ledger Technologies ou DLTs) ou redes descentralizadas para garantir a verificação de credenciais sem depender de um fornecedor de identidade central \cite{tobin2016inevitable}.
+O conceito de Self-Sovereign Identity (SSI) ganhou destaque a partir de 2016, formalizado por Tobin e Reed \cite{tobin2016inevitable}, emergindo como resposta à ausência de uma camada de identidade na Internet. A dependência de pares de nomes de utilizador e palavras-passe, associada à criação de silos de dados centralizados em cada organização, é uma solução ineficiente, visto implicar custos de manutenção elevados e serem alvos atrativos de ataques, dado o valor alto da informação sensível de clientes. Como alternativa, o SSI promove o uso de tecnologias de registo distribuído (Distributed Ledger Technologies ou DLTs) ou redes descentralizadas para garantir a verificação de credenciais sem depender de um fornecedor de identidade central \cite{tobin2016inevitable}.
 
 Este paradigma é essencial para fundamentar a motivação de sistemas de identidade autónomos e descentralizados. Ao permitir que o sujeito tenha controlo sobre as suas credenciais, o SSI promove o uso de mecanismos de autenticação focados na privacidade e na minimização da exposição de dados pessoais.
 
@@ -167,7 +167,7 @@ O W3C DID Working Group estabeleceu quatro propriedades fundamentais para estes 
 
 Para encontrar a ferramenta certa para identificar utilizadores de forma descentralizada na rede Tor, é necessário compreender os diferentes tipos de DIDs que foram desenvolvidos desde a sua invenção.
 
-Preukschat e Reed definem em 2024 as seguintes categorias de métodos DID desenvolvidas a partir de agosto de 2020 \cite{preukschat2021self}:
+Preukschat e Reed definem em 2021 as seguintes categorias de métodos DID desenvolvidas a partir de agosto de 2020 \cite{preukschat2021self}:
 
 \begin{itemize}
     \item \textbf{(Ledger-based DIDs)} Categoria original de DID methods que envolvem uma \textit{blockchain} ou outra DLT, que envolve todas as operações numa ledger pública distribuída na rede com assinatura com chave privada do próprio;
@@ -225,9 +225,9 @@ Matematicamente, um emparelhamento bilinear é uma aplicação entre dois grupos
     e : G_1 \times G_2 \longrightarrow G_T \, ,
 \end{equation*}
 
-onde $G_1$ e $G_2$ são dois grupos cíclicos de ordem prima $p$ definidos sobre curvas elípticas \cite{ma2013cyclic} e $G_T$ é um grupo multiplicativo no corpo de extensão $\mathbb{F}_{p^k}$, tal que $|G_1| = |G_2| = |G_T| = p$.
+onde $G_1$ e $G_2$ são dois grupos cíclicos de ordem prima $p$ definidos sobre curvas elípticas \cite{salin2023pairing} e $G_T$ é um grupo multiplicativo no corpo de extensão $\mathbb{F}_{p^k}$, tal que $|G_1| = |G_2| = |G_T| = p$.
 
-A aplicação $e$ satisfaz três propriedades fundamentais \cite{salin2023pairing, shparlinski_recent_trends}:
+A aplicação $e$ satisfaz três propriedades fundamentais \cite{salin2023pairing}:
 
 \begin{enumerate}
     \item \textbf{(Bilinearity)} Para todos os pontos $P \in G_1$, $Q \in G_2$ e escalares $a, b \in \mathbb{Z}_p^*$:
@@ -244,7 +244,7 @@ De acordo com a relação estrutural entre os grupos $G_1$ e $G_2$ e a existênc
 
 \begin{itemize}
     \item \textbf{(Tipo 1 - Simétrico)} $G_1 = G_2$;
-    \item \textbf{(Tipo 2)} $G_1 \neq G_2$ e $\exists \, \psi : G_2 \rightarrow G_1$, tal que $\psi$ é um homomorfismo computável de forma eficiente, e $\nexists \, H : \{0,1\}^* \rightarrow G_2$, sendo $H$ uma função de \textit{hash} eficiente com imagem em $G_2$ \cite{carter1977universal};
+    \item \textbf{(Tipo 2)} $G_1 \neq G_2$ e $\exists \, \psi : G_2 \rightarrow G_1$, tal que $\psi$ é um homomorfismo computável de forma eficiente, e $\nexists \, H : \{0,1\}^* \rightarrow G_2$, sendo $H$ uma função de \textit{hash} eficiente com imagem em $G_2$ \cite{salin2023pairing};
     \item \textbf{(Tipo 3)} $G_1 \neq G_2$ e $\nexists \, \psi : G_2 \rightarrow G_1$, para a mesma definição de $\psi$;
     \item \textbf{(Tipo 4)} $G_1 \neq G_2$ e $\exists \, \psi : G_2 \rightarrow G_1$, para a mesma definição de $\psi$, e $\exists \, H : \{0,1\}^* \rightarrow G_2$, para a mesma definição de $H$.
 \end{itemize}
@@ -296,7 +296,7 @@ O protocolo do compromisso de Pedersen entre um emissor $C$, que detém o segred
 
 \subsubsection{Propriedades de Segurança}
 
-O compromisso de Pedersen garante três propriedades fundamentais \cite{demirel2015securely}:
+O compromisso de Pedersen garante três propriedades fundamentais \cite{pedersen1991noninteractive}:
 
 \begin{itemize}
     \item \textbf{(Perfect Hiding)} Para quaisquer mensagens $m, m' \in \mathbb{Z}_q$, as distribuições dos compromissos $Com(m,r)$ e $Com(m',r')$ são estatisticamente indistinguíveis quando $r,r' \xleftarrow{R} \mathbb{Z}_q$. Portanto, o compromisso $c$ não revela qualquer informação sobre $m$, mesmo perante um adversário com poder computacional ilimitado;
@@ -384,7 +384,7 @@ A segurança das VRF de Dodis e Yampolskiy, ou DY-VRF, fundamenta-se na dureza d
 
 \subsection{Zero-Knowledge Proofs}
 
-As \textit{Zero-Knowledge Proofs} (ZKPs) constituem um protocolo criptográfico que permite a uma entidade, o provador ($P$), demonstrar a uma segunda entidade, o verificador ($V$), a veracidade de uma afirmação sem revelar qualquer informação adicional para além da própria validade da mesma \cite{bellare1989new, mulder2023trends}.
+As \textit{Zero-Knowledge Proofs} (ZKPs) constituem um protocolo criptográfico que permite a uma entidade, o provador ($P$), demonstrar a uma segunda entidade, o verificador ($V$), a veracidade de uma afirmação sem revelar qualquer informação adicional para além da própria validade da mesma \cite{mulder2023trends}.
 
 \subsubsection{Tipos de Zero-Knowledge Proofs}
 
@@ -441,13 +441,13 @@ Nesta variante não-interativa:
 
 Para verificar a prova $\pi = (c, s)$, qualquer entidade externa $V$ calcula $r' = g^s \cdot y^{-c}$ e valida se $H(g \, || \, y \, || \, r') = c$ \cite{fiatshamir1986how}.
 
-A segurança da transformação de Fiat-Shamir é provada no Modelo do Oráculo Aleatório (\textit{Random Oracle Model} - ROM), garantindo que a prova não-interativa resultante é publicamente verificável, transferível e computacionalmente equivalente ao protocolo interativo original \cite{canetti2019fiatshamir}.
+A segurança da transformação de Fiat-Shamir é provada no Modelo do Oráculo Aleatório (\textit{Random Oracle Model} - ROM), garantindo que a prova não-interativa resultante é publicamente verificável, transferível e computacionalmente equivalente ao protocolo interativo original \cite{fiatshamir1986how}.
 
 \subsubsection{Prova de Igualdade de Logaritmos Discretos}
 
-Uma \textit{Discrete Logarithm Equality Proof} ou DLEQ é uma NIZKP de igualdade de logaritmos discretos, que permite demonstrar que dois pares de elementos de um grupo têm o mesmo logaritmo discreto, sem o revelar \cite{rfc9497}. Esta prova foi desenvolvida por Chaum e Pedersen \cite{chase2022dleq}, sendo mais tarde provada ZK por Jarecki et al. \cite{jarecki2014roundoptimal} e transformada em não interativa pela Heurística de Fiat-Shamir \cite{fiatshamir1986how}.
+Uma \textit{Discrete Logarithm Equality Proof} ou DLEQ é uma NIZKP de igualdade de logaritmos discretos, que permite demonstrar que dois pares de elementos de um grupo têm o mesmo logaritmo discreto, sem o revelar \cite{rfc9497}. Esta prova foi desenvolvida por Chaum e Pedersen \cite{chaumpedersen1992wallet}, sendo mais tarde provada ZK por Jarecki et al. \cite{jarecki2014roundoptimal} e transformada em não interativa pela Heurística de Fiat-Shamir \cite{fiatshamir1986how}.
 
-A prova de Schnorr não é suficiente em casos onde queremos provar que o mesmo segredo está por trás de duas chaves públicas diferentes, potencialmente em grupos diferentes. É nesta medida que o DLEQ é criado. Dados dois pares $(g, y = g^x)$ e $(h, z = h^x)$, a prova demonstra conhecimento de um único $x$ que satisfaz ambas as relações em simultâneo. O esquema está estruturado como uma prova de Schnorr, exceptuando dois compromissos ao invés de apenas um, $r_1 = g^k$ e $r_2 = h^k$, usando o mesmo $k$ aleatório nos dois e uma resposta partilhada. O desafio calculado é transformado pela Heurística de Fiat-Shamir, usando apenas um para ambos os compromissos:
+A prova de Schnorr não é suficiente em casos onde queremos provar que o mesmo segredo está por trás de duas chaves públicas diferentes, potencialmente em grupos diferentes. É nesta medida que o DLEQ é criado. Dados dois pares $(g, y = g^x)$ e $(h, z = h^x)$, a prova demonstra conhecimento de um único $x$ que satisfaz ambas as relações em simultâneo. O esquema está estruturado como uma prova de Schnorr, excetuando dois compromissos ao invés de apenas um, $r_1 = g^k$ e $r_2 = h^k$, usando o mesmo $k$ aleatório nos dois e uma resposta partilhada. O desafio calculado é transformado pela Heurística de Fiat-Shamir, usando apenas um para ambos os compromissos:
 
 \begin{equation*}
     c = H(g \, || \, y \, || \, h \, || \, z \, || \, r_1 \, || \, r_2)
@@ -501,7 +501,7 @@ Formalmente, o DKG permite que um conjunto de $n$ servidores possa gerir coopera
 
 \subsection{Pedersen's DKG e Verifiable Secret Sharing}
 
-Torben Pedersen propõe o primeiro esquema de geração distribuída de chaves baseado em partilha de segredos verificáveis \cite{gennaro2007secure} como resposta à necessidade de um meio de partilha de segredos sem uma entidade central responsável pela partilha dos mesmos \cite{pedersen_vss_berkeley}.
+Torben Pedersen propõe o primeiro esquema de geração distribuída de chaves baseado em partilha de segredos verificáveis \cite{gennaro2007secure} como resposta à necessidade de um meio de partilha de segredos sem uma entidade central responsável pela partilha dos mesmos \cite{pedersen1991threshold}.
 
 Um esquema de geração distribuída de chaves com possibilidade dos seus membros verificarem, sem necessidade de interações adicionais, que a sua parte das chaves é matematicamente consistente com as dos restantes membros é classificado como um esquema de partilha de segredos verificáveis. Até então, foram apresentados esquemas deste género interativos, limitando os membros do sistema a interagirem entre si para verificar a validade da sua parte, o que motiva Pedersen a encontrar uma solução não interativa \cite{reaction_la_pedersen}. Para isto, implementa um esquema de partilha de segredos verificáveis que faz uso de compromissos de Pedersen com partilha de segredos de Shamir, adicionando os compromissos aos coeficientes do polinómio
 
@@ -511,7 +511,7 @@ Um esquema de geração distribuída de chaves com possibilidade dos seus membro
 
 \cite{reaction_la_pedersen}.
 
-Para eliminar a necessidade da entidade central distribuidora, o protocolo de DKG de Pedersen executa $n$ instâncias paralelas do seu esquema de partilha de segredos verificáveis em paralelo, decorrendo da seguinte forma \cite{pedersen_vss_berkeley}:
+Para eliminar a necessidade da entidade central distribuidora, o protocolo de DKG de Pedersen executa $n$ instâncias paralelas do seu esquema de partilha de segredos verificáveis em paralelo, decorrendo da seguinte forma \cite{pedersen1991threshold}:
 
 \begin{itemize}
     \item \textbf{(Geração de Polinómios Locais)} Cada participante $i \in \{1, \ldots, n\}$ escolhe aleatoriamente um segredo local $z_i \xleftarrow{R} \mathbb{Z}_q^*$ e dois polinómios aleatórios de grau $t-1$:
@@ -577,7 +577,7 @@ A implementação do Babel permite que um programador possa implementar a sua so
 
 \section{SyRA - Sybil-Resilient Anonymous Signatures with Applications to Decentralized Identity}
 
-O esquema \textit{SyRA} (\textit{Sybil-Resilient Anonymous Signatures}) é uma primitiva criptográfica desenhada para reconciliar a verificação de identidade no mundo real com a preservação do anonimato e a prevenção de ataques \textit{Sybil} em sistemas descentralizados \cite{crites2025syra}. Estas assinaturas são usadas de forma a complementar uma credencial verificável da identidade real do sujeito, que pode ser obtida a partir de qualquer identificador legal (como o Cartão de Cidadão português), biométrico (como a impressão digital) ou a partir de qualquer método legal capaz de identificação como o OAuth \cite{openid_connect}, por exemplo, garantindo o princípio de $1\ Pessoa = 1\ Identidade$ no Sistema. Ao interagir com o sistema, o utilizador deriva pseudónimos contextuais que cumprem as seguintes propriedades:
+O esquema \textit{SyRA} (\textit{Sybil-Resilient Anonymous Signatures}) é uma primitiva criptográfica desenhada para reconciliar a verificação de identidade no mundo real com a preservação do anonimato e a prevenção de ataques \textit{Sybil} em sistemas descentralizados \cite{crites2025syra}. Estas assinaturas são usadas de forma a complementar uma credencial verificável da identidade real do sujeito, que pode ser obtida a partir de qualquer identificador legal (como o Cartão de Cidadão português), biométrico (como a impressão digital) ou a partir de qualquer método legal capaz de identificação como o OpenID Connect \cite{openid_connect}, por exemplo, garantindo o princípio de $1\ Pessoa = 1\ Identidade$ no Sistema. Ao interagir com o sistema, o utilizador deriva pseudónimos contextuais que cumprem as seguintes propriedades:
 
 \begin{itemize}
     \item \textbf{(Sybil Resilience)} Para um determinado contexto $ctx$, um utilizador só consegue gerar um único pseudónimo válido $y_{ctx}$. Qualquer tentativa de reutilizar a mesma âncora de identidade para obter múltiplas credenciais no mesmo contexto resultará no mesmo pseudónimo, prevenindo a duplicação de identidades;
