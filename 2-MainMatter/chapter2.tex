@@ -18,7 +18,7 @@
 
 A revisão de literatura foi orientada pela necessidade de identificar, analisar e formalizar as soluções criptográficas e relacionais para a mitigação de \textit{Sybil attacks}. O processo de seleção bibliográfica foi realizado com três pilares fundamentais: orientação de especialistas na área, pesquisa em bases de dados académicas e filtragem por critérios de relevância temática.
 
-Inicialmente, grande parte dos recursos académicos de pesquisa foram recomendados pela equipa de Network Health do Tor, que contribuíram para este projeto prestando auxílio em dúvidas que surgissem e direcionando-o de forma a que fosse útil para o futuro do Tor. A recolha de artigos científicos foi realizada no Google Scholar e estendida a repositórios oficiais como o IACR Cryptology ePrint Archive, USENIX Security, IEEE Symposium on Security and Privacy e ACM CCS, usando palavras-chaves como “\textit{Sybil attack}”, “Tor” e “Nym” na procura de novos artigos, sendo este último uma solução implementada e um ponto de partida. O uso de Large Language Models foi produtivo na exploração de novos tópicos e no entendimento profundo de cada conceito, tendo as fontes sugeridas devidamente validadas de acordo com as bases de dados académicas e o uso realizado de forma crítica. Dentro deste tópico, o uso do Gemini facilitou a pesquisa e explicação dos conceitos criptográficos, que foram avaliados de forma crítica na verificação das fontes e na respetiva reputação, onde toda a informação construída foi oriunda de documentos avaliados academicamente na plataforma do Google Scholar. A possibilidade de leitura dos documentos assentou em critérios como a especificidade do tópico pretendido no resumo dos mesmos.
+Inicialmente, grande parte dos recursos académicos de pesquisa foram recomendados pela equipa de Network Health do Tor, que contribuíram para este projeto prestando auxílio em dúvidas que surgissem e direcionando-o de forma a que fosse útil para o futuro do Tor. A recolha de artigos científicos foi realizada no Google Scholar e estendida a repositórios oficiais como o IACR Cryptology ePrint Archive, USENIX Security, IEEE Symposium on Security and Privacy e ACM CCS, usando palavras-chaves como “\textit{Sybil attack}”, “Tor” e “Nym” na procura de novos artigos, sendo este último uma solução implementada e um ponto de partida. O uso de \textit{Large Language Models} foi produtivo na exploração de novos tópicos e no entendimento profundo de cada conceito, tendo as fontes sugeridas devidamente validadas de acordo com as bases de dados académicas e o uso realizado de forma crítica. Dentro deste tópico, o uso do Gemini facilitou a pesquisa e explicação dos conceitos criptográficos, que foram avaliados de forma crítica na verificação das fontes e na respetiva reputação, onde toda a informação construída foi oriunda de documentos avaliados academicamente na plataforma do Google Scholar. A possibilidade de leitura dos documentos assentou em critérios como a especificidade do tópico pretendido no resumo dos mesmos.
 
 Após a construção de uma base de tópicos e de pesquisa por artigos que aprofundassem a solução para mitigação de \textit{Sybil attacks}, foi usado, como método de avaliação da importância do artigo, a profundidade da ligação entre a proposta do mesmo e este tipo de ataques, garantindo assim uma pesquisa sequencialmente mais analítica e pormenorizada do estudo, obedecendo a um processo sequencial de triagem:
 
@@ -32,31 +32,31 @@ Após a construção de uma base de tópicos e de pesquisa por artigos que aprof
 
 O Tor Project é uma organização americana sem fins lucrativos que visa proteger a privacidade e os direitos humanos dos utilizadores na Internet, protegendo contra a monitorização e censura \cite{tor}. Esta organização é responsável pelo Tor Browser, um \textit{web-browser} concebido para direcionar o tráfego do utilizador através da rede Tor. Este processo oculta o endereço IP real do utilizador, dificulta o rastreio online e protege contra mecanismos de censura, proporcionando garantias elevadas de anonimato \cite{browser}.
 
-O Tor Browser constitui a porta de entrada principal para a Rede Tor apesar de ser possível aceder à rede com outros browsers, dado as suas propriedades de anonimato. Este navegador assegura três propriedades fundamentais:
+O Tor Browser constitui a porta de entrada principal para a Rede Tor apesar de ser possível aceder à rede com outros \textit{browsers}, dado as suas propriedades de anonimato. Este navegador assegura três propriedades fundamentais:
 
 \begin{itemize}
-    \item \textbf{(Privacidade perante o ISP)} O Internet Service Provider do utilizador não consegue monitorizar as suas ações, tendo apenas conhecimento da ligação à rede Tor;
-    \item \textbf{(Anonimato perante o Destino)} Não é possível, para os operadores dos websites e serviços utilizados pelo utilizador, deduzir a identidade ou localização real do mesmo, a não ser que voluntariamente revelada;
-    \item \textbf{(Evasão à Censura)} Permite evasão à censura ao permitir ligações a websites bloqueados na região do utilizador, evadindo restrições geográficas.
+    \item \textbf{(Privacidade perante o ISP)} O \textit{Internet Service Provider} do utilizador não consegue monitorizar as suas ações, tendo apenas conhecimento da ligação à rede Tor;
+    \item \textbf{(Anonimato perante o Destino)} Não é possível, para os operadores dos \textit{websites} e serviços utilizados pelo utilizador, deduzir a identidade ou localização real do mesmo, a não ser que voluntariamente revelada;
+    \item \textbf{(Evasão à Censura)} Permite evasão à censura ao permitir ligações a \textit{websites} bloqueados na região do utilizador, evadindo restrições geográficas.
 \end{itemize}
 
-Estas três propriedades resultam da arquitetura da rede, que faz uso de servidores distribuídos mundialmente e mantidos por voluntários - denominados de \textit{relays} - para estabelecer circuitos de conexões TCP encriptadas entre o browser e o website ou serviço pretendido.
+Estas três propriedades resultam da arquitetura da rede, que faz uso de servidores distribuídos mundialmente e mantidos por voluntários - denominados de \textit{relays} - para estabelecer circuitos de conexões TCP encriptadas entre o \textit{browser} e o \textit{website} ou serviço pretendido.
 
 \subsection{Onion Routing e Construção de Circuitos}
 \label{sub:onion_routing_circuitos}
 
-O Tor teve a sua origem no projeto de onion routing do U.S Naval Research Laboratory, razão pela qual adotou o acrónimo TOR (The Onion Router). O seu princípio base assenta no onion routing, uma técnica que utiliza encriptação por camadas para encapsular dados e direcioná-los pela rede.
+O Tor teve a sua origem no projeto de \textit{onion routing} do U.S Naval Research Laboratory, razão pela qual adotou o acrónimo TOR (The Onion Router). O seu princípio base assenta no \textit{onion routing}, uma técnica que utiliza encriptação por camadas para encapsular dados e direcioná-los pela rede.
 
-Enquanto o onion routing original usa diretamente as chaves públicas de cada nó no percurso para encriptar a mensagem, o Tor Browser estabelece previamente um circuito Tor composto por três \textit{relays}. Este circuito é construído por um mecanismo incremental de telescoping que permite que o utilizador negocie chaves de sessão efémeras em cada salto sucessivo do circuito, garantindo que chaves de longo prazo comprometidas no futuro não expõem tráfego no passado (perfect forward secrecy). Para criar um circuito, é necessário enviar uma célula de criação para o primeiro nó no caminho escolhido. Para construir esta célula, são negociadas chaves através do handshake de Diffie-Hellman, enviando a primeira parte do handshake, $(g^x)$, encriptada pela chave do \textit{relay} de destino, e recebendo uma célula de criação com $g^y$ e um \textit{hash} da chave negociada, $K=g^{xy}$. Após a criação do circuito, é possível comunicar usando a chave negociada, que é usada para o envio da próxima informação relativa ao próximo nó do circuito.
+Enquanto o \textit{onion routing} original usa diretamente as chaves públicas de cada nó no percurso para encriptar a mensagem, o Tor Browser estabelece previamente um circuito Tor composto por três \textit{relays}. Este circuito é construído por um mecanismo incremental de \textit{telescoping} que permite que o utilizador negocie chaves de sessão efémeras em cada salto sucessivo do circuito, garantindo que chaves de longo prazo comprometidas no futuro não expõem tráfego no passado (\textit{perfect forward secrecy}). Para criar um circuito, é necessário enviar uma célula de criação para o primeiro nó no caminho escolhido. Para construir esta célula, são negociadas chaves através do \textit{handshake} de Diffie-Hellman, enviando a primeira parte do \textit{handshake}, $(g^x)$, encriptada pela chave do \textit{relay} de destino, e recebendo uma célula de criação com $g^y$ e um \textit{hash} da chave negociada, $K=g^{xy}$. Após a criação do circuito, é possível comunicar usando a chave negociada, que é usada para o envio da próxima informação relativa ao próximo nó do circuito.
 
 O cliente encripta a mensagem com três camadas de chaves simétricas, na ordem inversa do circuito, de forma a que cada chave simétrica seja a camada exterior da encriptação, permitindo que a desencriptação revele apenas o endereço do próximo nó do circuito.
 
 O Tor Circuit estabelecido é constituído por três \textit{relays}, cuja definição é a seguinte \cite{dingledine2004tor}:
 
 \begin{enumerate}
-    \item \textbf{(Entry/Guard)} Como primeiro nó do circuito, é designado por Entry Guard pelas \textit{Directory Authorities} e é responsável por desencriptar a camada exterior do pacote de dados enviado pelo emissor, sendo o único nó capaz de observar o endereço IP real do utilizador \cite{mccoy2008shining};
-    \item \textbf{(Middle)} Como segundo nó do circuito, é responsável por desencriptar a camada intermédia do pacote de dados enviado pelo entry node. Tem acesso ao endereço IP do guard, mas não do emissor da mensagem. Ao desencriptar, revela o endereço IP do último nó do circuito, sem saber o destinatário \cite{barker2011using};
-    \item \textbf{(Exit)} Como terceiro e último nó do circuito, é responsável por desencriptar a última camada do pacote de dados enviado pelo middle node. A desencriptação revela o destinatário do pacote, podendo então enviá-lo da rede Tor para o servidor pretendido na Internet, sendo o único nó com conhecimento sobre o destinatário \cite{mccoy2008shining}.
+    \item \textbf{(Entry/Guard)} Como primeiro nó do circuito, é designado por \textit{Entry Guard} pelas \textit{Directory Authorities} e é responsável por desencriptar a camada exterior do pacote de dados enviado pelo emissor, sendo o único nó capaz de observar o endereço IP real do utilizador \cite{mccoy2008shining};
+    \item \textbf{(Middle)} Como segundo nó do circuito, é responsável por desencriptar a camada intermédia do pacote de dados enviado pelo \textit{entry node}. Tem acesso ao endereço IP do guard, mas não do emissor da mensagem. Ao desencriptar, revela o endereço IP do último nó do circuito, sem saber o destinatário \cite{barker2011using};
+    \item \textbf{(Exit)} Como terceiro e último nó do circuito, é responsável por desencriptar a última camada do pacote de dados enviado pelo \textit{middle node}. A desencriptação revela o destinatário do pacote, podendo então enviá-lo da rede Tor para o servidor pretendido na Internet, sendo o único nó com conhecimento sobre o destinatário \cite{mccoy2008shining}.
 \end{enumerate}
 
 Esta arquitetura assegura \textit{unlinkability} entre o emissor e o recetor da informação, impedindo que uma única entidade no circuito consiga correlacionar a origem e o destino da comunicação, excetuando casos em que o controlo de dois ou mais nós no percurso pertence a uma única entidade.
@@ -67,7 +67,7 @@ A garantia de \textit{unlinkability} entre o emissor e o recetor de uma comunica
 
 A encriptação do Tor protege o conteúdo e o encaminhamento da mensagem ao longo do circuito, mas não oculta características observáveis do tráfego em si, como o momento exato de envio dos pacotes, o seu volume ou o intervalo entre eles. Caso um atacante consiga observar simultaneamente o tráfego que entra no primeiro nó do circuito (o guard) e o tráfego que sai do último (o exit), é possível correlacionar estes padrões temporais e concluir, com elevada probabilidade, que ambos pertencem à mesma sessão de comunicação, revelando desta forma a ligação entre o utilizador e o destino, mesmo sem nunca decifrar o conteúdo transmitido \cite{mccoy2008shining, barker2011using}.
 
-Este tipo de ataque pode ser realizado de forma passiva, quando o atacante se limita a observar o tráfego sem o alterar, ou de forma ativa, introduzindo padrões artificiais no tráfego (por exemplo, através de watermarking) para facilitar a correlação com menor margem de erro. Em qualquer dos casos, a condição necessária para o sucesso do ataque é a mesma: o controlo, ou a capacidade de observação, de ambas as extremidades do mesmo circuito.
+Este tipo de ataque pode ser realizado de forma passiva, quando o atacante se limita a observar o tráfego sem o alterar, ou de forma ativa, introduzindo padrões artificiais no tráfego (por exemplo, através de \textit{watermarking}) para facilitar a correlação com menor margem de erro. Em qualquer dos casos, a condição necessária para o sucesso do ataque é a mesma: o controlo, ou a capacidade de observação, de ambas as extremidades do mesmo circuito.
 
 É nesta condição que reside a relevância do \textit{Sybil attack} para a rede Tor. Caso um único adversário consiga controlar múltiplas identidades de \textit{relays} na rede, aumenta significativamente a probabilidade estatística de que, para um dado circuito, tanto o guard como o exit selecionados pertençam a essa mesma entidade maliciosa, tornando trivial a realização do ataque de correlação já descrito. A mitigação de \textit{Sybil attacks} é, portanto, um pré-requisito para a preservação da \textit{unlinkability} que a arquitetura da rede Tor pretende garantir, não um objetivo de segurança independente.
 
@@ -79,19 +79,19 @@ Como cooperação, os \textit{relays} enviam periodicamente às DAs um documento
 
 \subsection{Node Families}
 
-O conceito de família de nós foi formalizado no Tor para agrupar múltiplos \textit{relays} operados pela mesma entidade ou organização \cite{dingledine2004tor}. De forma a mitigar ataques de correlação de tráfego, o algoritmo de seleção de rotas evita nodes na mesma família dentro do mesmo circuito \cite{wang2013empirical}. Esta associação é declarada pelos próprios operadores dos nós nos \textit{relay} descriptors, de forma a que não sejam selecionados múltiplos nós sob o mesmo controlo operacional para o mesmo circuito \cite{tor_dirspec_serverdesc}.
+O conceito de família de nós foi formalizado no Tor para agrupar múltiplos \textit{relays} operados pela mesma entidade ou organização \cite{dingledine2004tor}. De forma a mitigar ataques de correlação de tráfego, o algoritmo de seleção de rotas evita \textit{nodes} na mesma família dentro do mesmo circuito \cite{wang2013empirical}. Esta associação é declarada pelos próprios operadores dos nós nos \textit{relay} descriptors, de forma a que não sejam selecionados múltiplos nós sob o mesmo controlo operacional para o mesmo circuito \cite{tor_dirspec_serverdesc}.
 
 \subsection{Node Descriptors}
 
-Um \textit{node descriptor} é um documento estruturado em texto simples que contém as chaves de identidade de longo prazo do nó, as onion keys efémeras para a negociação de circuitos, o endereço IP, portas de comunicação, uptime, largura de banda e a declaração de pertença a famílias de \textit{relays} \cite{tor_dirspec_serverdesc}. Este documento é assinado com a chave privada de identidade do próprio \textit{relay}, garantindo às DAs que o ficheiro não foi adulterado por terceiros.
+Um \textit{node descriptor} é um documento estruturado em texto simples que contém as chaves de identidade de longo prazo do nó, as \textit{onion keys} efémeras para a negociação de circuitos, o endereço IP, portas de comunicação, \textit{uptime}, largura de banda e a declaração de pertença a famílias de \textit{relays} \cite{tor_dirspec_serverdesc}. Este documento é assinado com a chave privada de identidade do próprio \textit{relay}, garantindo às DAs que o ficheiro não foi adulterado por terceiros.
 
-De forma a poupar largura de banda no \textit{download} efetuado pelos clientes, as DAs condensam os \textit{relay} descriptors em microdescriptors, mantendo apenas os campos mais relevantes para os clientes \cite{tor_dirspec_microdesc}.
+De forma a poupar largura de banda no \textit{download} efetuado pelos clientes, as DAs condensam os \textit{relay} descriptors em \textit{microdescriptors}, mantendo apenas os campos mais relevantes para os clientes \cite{tor_dirspec_microdesc}.
 
 \subsection{Sybil Attacks no Tor}
 
 Apesar do longo desenvolvimento da rede Tor, o \textit{Sybil attack} continua a ser uma das suas maiores ameaças \cite{douceur2002sybil}. Este ataque consiste na criação de múltiplas entidades falsas denominadas de \textit{sybils}, geridas por um único adversário. No contexto de redes como o Tor, a presença de uma densidade elevada de nós maliciosos compromete diretamente a \textit{unlinkability} entre o emissor e o destino. Caso um atacante consiga controlar múltiplas identidades dentro da rede, surge a possibilidade de realizar ataques de correlação de tráfego ao controlar simultaneamente o nó guard e o exit do mesmo circuito, revelando o endereço IP real do utilizador e consequentemente quebrando a garantia de anonimato do sistema.
 
-A mitigação de \textit{Sybil attacks} permanece um desafio em aberto no domínio dos sistemas distribuídos e redes peer-to-peer. Várias arquiteturas \cite{cvrcek2004role, dingledine2004synchronous, serjantov2004dealing, shneidman2004faithfulness} - como sistemas robustos de nomes distribuídos \cite{awerbuch2004robust}, processadores de pesquisas em escala Internet \cite{huebsch2005architecture} e algoritmos de routing por \textit{Distributed Hash Tables} \cite{marti2004sprout} - identificaram o \textit{Sybil attack} como uma ameaça no passado, sem apresentar soluções viáveis em cenários descentralizados. A abordagem de Douceur de mitigação baseada numa autoridade central de certificação \cite{douceur2002sybil} é conceptualmente incompatível com o modelo de confiança e a topologia aberta do Tor e, apesar dos estudos sobre os desafios económicos da implementação de sistemas de anonimato \cite{acquisti2003economics}, continua a não existir uma solução ideal para combater este ataque.
+A mitigação de \textit{Sybil attacks} permanece um desafio em aberto no domínio dos sistemas distribuídos e redes \textit{peer-to-peer}. Várias arquiteturas \cite{cvrcek2004role, dingledine2004synchronous, serjantov2004dealing, shneidman2004faithfulness} - como sistemas robustos de nomes distribuídos \cite{awerbuch2004robust}, processadores de pesquisas em escala Internet \cite{huebsch2005architecture} e algoritmos de \textit{routing} por \textit{Distributed Hash Tables} \cite{marti2004sprout} - identificaram o \textit{Sybil attack} como uma ameaça no passado, sem apresentar soluções viáveis em cenários descentralizados. A abordagem de Douceur de mitigação baseada numa autoridade central de certificação \cite{douceur2002sybil} é conceptualmente incompatível com o modelo de confiança e a topologia aberta do Tor e, apesar dos estudos sobre os desafios económicos da implementação de sistemas de anonimato \cite{acquisti2003economics}, continua a não existir uma solução ideal para combater este ataque.
 
 \section{Identidade Digital}
 
@@ -103,7 +103,7 @@ Silos de armazenamento de informação de identidades digitais tornam-se alvos a
 
 \subsection{Credenciais Verificáveis}
 
-A evolução das identidades digitais motivou a necessidade de associar atributos a credenciais digitais capazes de validação por entidades externas. Neste contexto, a World Wide Web Consortium (W3C) formalizou o termo Verifiable Credentials ou VCs, que define uma credencial verificável que expressa a mesma informação que uma credencial física, embora com garantias criptográficas de tamper-evidence. A arquitetura das VCs é composta por um modelo de confiança constituído por três entidades principais \cite{w3}:
+A evolução das identidades digitais motivou a necessidade de associar atributos a credenciais digitais capazes de validação por entidades externas. Neste contexto, a World Wide Web Consortium (W3C) formalizou o termo \textit{Verifiable Credentials} ou VCs, que define uma credencial verificável que expressa a mesma informação que uma credencial física, embora com garantias criptográficas de \textit{tamper-evidence}. A arquitetura das VCs é composta por um modelo de confiança constituído por três entidades principais \cite{w3}:
 
 \begin{itemize}
     \item \textbf{(Issuer)} Entidade que assina e emite a credencial;
@@ -111,27 +111,27 @@ A evolução das identidades digitais motivou a necessidade de associar atributo
     \item \textbf{(Verifier)} Entidade que recebe e valida criptograficamente a credencial.
 \end{itemize}
 
-Com a vinda da pandemia em 2019, tornou-se recorrente o uso de verifiable credentials com valor simbólico, capazes de trazer significado ao mundo real a partir de verificações externas. Um exemplo dentro desse período de tempo são os certificados de vacinação de COVID-19, que são usados como garantia que o seu utilizador está vacinado. Outro exemplo toma-se em estádios de futebol, onde os adeptos dos clubes usam os seus bilhetes em formato digital para serem lidos e verificados à entrada. Os certificados digitais surgem da necessidade da verificação rápida de um elevado número de certificados, sendo uma solução para o elevado tempo gasto com certificados em papel e possibilidade de erro na validação, eliminando a dependência de consultas constantes a bases de dados e mitigando o risco de falsificação \cite{sedlmeir2021digital}.
+Com a vinda da pandemia em 2019, tornou-se recorrente o uso de \textit{verifiable credentials} com valor simbólico, capazes de trazer significado ao mundo real a partir de verificações externas. Um exemplo dentro desse período de tempo são os certificados de vacinação de COVID-19, que são usados como garantia que o seu utilizador está vacinado. Outro exemplo toma-se em estádios de futebol, onde os adeptos dos clubes usam os seus bilhetes em formato digital para serem lidos e verificados à entrada. Os certificados digitais surgem da necessidade da verificação rápida de um elevado número de certificados, sendo uma solução para o elevado tempo gasto com certificados em papel e possibilidade de erro na validação, eliminando a dependência de consultas constantes a bases de dados e mitigando o risco de falsificação \cite{sedlmeir2021digital}.
 
 A crescente utilização de credenciais verificáveis possibilita a descentralização de sistemas de identidades, tornando-se um pilar na matéria.
 
 \subsection{Self-Sovereign Identity}
 
-O adjetivo sovereign remonta para significados atualmente direcionados para independência e autonomia total que, dentro do contexto dos seus dados pessoais e, quando aplicado ao próprio, “self”, e adicionando a palavra “identity”, refere-se ao controlo total, independente e autónomo da identidade digital do próprio sobre os seus dados pessoais \cite{preukschat2021self}, o que reflete um novo paradigma relativo a quem, quando e sob que condições os seus atributos são partilhados, juntamente do uso de credenciais verificáveis e autonomia sobre as mesmas.
+O adjetivo \textit{sovereign} remonta para significados atualmente direcionados para independência e autonomia total que, dentro do contexto dos seus dados pessoais e, quando aplicado ao próprio, “\textit{self}”, e adicionando a palavra “\textit{identity}”, refere-se ao controlo total, independente e autónomo da identidade digital do próprio sobre os seus dados pessoais \cite{preukschat2021self}, o que reflete um novo paradigma relativo a quem, quando e sob que condições os seus atributos são partilhados, juntamente do uso de credenciais verificáveis e autonomia sobre as mesmas.
 
-O conceito de Self-Sovereign Identity (SSI) ganhou destaque a partir de 2016, formalizado por Tobin e Reed \cite{tobin2016inevitable}, emergindo como resposta à ausência de uma camada de identidade na Internet. A dependência de pares de nomes de utilizador e palavras-passe, associada à criação de silos de dados centralizados em cada organização, é uma solução ineficiente, visto implicar custos de manutenção elevados e serem alvos atrativos de ataques, dado o valor alto da informação sensível de clientes. Como alternativa, o SSI promove o uso de tecnologias de registo distribuído (Distributed Ledger Technologies ou DLTs) ou redes descentralizadas para garantir a verificação de credenciais sem depender de um fornecedor de identidade central \cite{tobin2016inevitable}.
+O conceito de \textit{Self-Sovereign Identity} (SSI) ganhou destaque a partir de 2016, formalizado por Tobin e Reed \cite{tobin2016inevitable}, emergindo como resposta à ausência de uma camada de identidade na Internet. A dependência de pares de nomes de utilizador e palavras-passe, associada à criação de silos de dados centralizados em cada organização, é uma solução ineficiente, visto implicar custos de manutenção elevados e serem alvos atrativos de ataques, dado o valor alto da informação sensível de clientes. Como alternativa, o SSI promove o uso de tecnologias de registo distribuído (\textit{Distributed Ledger Technologies} ou DLTs) ou redes descentralizadas para garantir a verificação de credenciais sem depender de um fornecedor de identidade central \cite{tobin2016inevitable}.
 
 Este paradigma é essencial para fundamentar a motivação de sistemas de identidade autónomos e descentralizados. Ao permitir que o sujeito tenha controlo sobre as suas credenciais, o SSI promove o uso de mecanismos de autenticação focados na privacidade e na minimização da exposição de dados pessoais.
 
 \subsection{Identificadores Descentralizados}
 
-Os Identificadores Descentralizados (Decentralized Identifiers - DIDs) são URIs (Uniform Resource Identifiers) concebidos para permitir identidades digitais verificáveis e independentes de uma autoridade central. Um DID associa um sujeito a um documento estruturado, um documento DID, que contém as suas chaves públicas, métodos de autenticação e metadados associados \cite{ssimeetup_did_report}.
+Os Identificadores Descentralizados (\textit{Decentralized Identifiers} - DIDs) são URIs (\textit{Uniform Resource Identifiers}) concebidos para permitir identidades digitais verificáveis e independentes de uma autoridade central. Um DID associa um sujeito a um documento estruturado, um documento DID, que contém as suas chaves públicas, métodos de autenticação e metadados associados \cite{ssimeetup_did_report}.
 
-O mapeamento destes identificadores é frequentemente registado em DLTs ou redes peer-to-peer, permitindo que entidades externas verifiquem a autenticidade de um sujeito ou de uma credencial sem ser necessário entrar em contacto com a autoridade emissora \cite{mazzocca2025survey}. Este mecanismo opera sobre os princípios de SSI previamente apresentados, assegurando canais de comunicação encriptada e autonomia total do utilizador sobre os seus dados \cite{sedlmeir2021digital}.
+O mapeamento destes identificadores é frequentemente registado em DLTs ou redes \textit{peer-to-peer}, permitindo que entidades externas verifiquem a autenticidade de um sujeito ou de uma credencial sem ser necessário entrar em contacto com a autoridade emissora \cite{mazzocca2025survey}. Este mecanismo opera sobre os princípios de SSI previamente apresentados, assegurando canais de comunicação encriptada e autonomia total do utilizador sobre os seus dados \cite{sedlmeir2021digital}.
 
 \subsubsection{Composição}
 
-Um DID pode funcionar como um Uniform Resource Locator (URL), ao apontar para a localização de uma representação de um recurso da rede, ou como um Uniform Resource Name (URN), ao identificar o recurso abstrato em si, sendo ambos subclasses de Uniform Resource Identifier (URIs), um identificador persistente \cite{preukschat2021self}. De acordo com o padrão da W3C \cite{ssimeetup_did_report}, a estrutura formal de um DID segue o formato \texttt{did:<method-name>:<method-specific-identifier>}, dividindo-se em três componentes principais \cite{w3c_did_spec}:
+Um DID pode funcionar como um \textit{Uniform Resource Locator} (URL), ao apontar para a localização de uma representação de um recurso da rede, ou como um \textit{Uniform Resource Name} (URN), ao identificar o recurso abstrato em si, sendo ambos subclasses de \textit{Uniform Resource Identifier} (URIs), um identificador persistente \cite{preukschat2021self}. De acordo com o padrão da W3C \cite{ssimeetup_did_report}, a estrutura formal de um DID segue o formato \texttt{did:<method-name>:<method-specific-identifier>}, dividindo-se em três componentes principais \cite{w3c_did_spec}:
 
 \begin{itemize}
     \item \textbf{(Scheme)} Prefixo obrigatório \textit{did}, que identifica a sintaxe \cite{w3c_did_spec};
@@ -153,13 +153,13 @@ O W3C DID Working Group estabeleceu quatro propriedades fundamentais para estes 
     \item \textbf{(Permanent Identification)} Os DIDs têm uma arquitetura que remove a necessidade da mudança de identificador, visto que eles permitem atualizações do seu conteúdo;
     \item \textbf{(Resolvable Identifier)} É possível resolver o DID para obter o documento DID e obter as credenciais de que necessita;
     \item \textbf{(Cryptographically Verifiable Identifier)} É possível confirmar a identidade do utilizador do DID a partir de primitivas criptográficas, visto que existe um par de chave pública e privada associado a cada DID, garantindo que quem tem a chave privada é o sujeito associado;
-    \item \textbf{(Decentralized Identifier)} O documento associado ao DID tem um bloco de autenticação, com a chave pública do sujeito, e um bloco de serviço, com um endpoint para troca de credenciais verificáveis, permitindo independência de um registo centralizado:
+    \item \textbf{(Decentralized Identifier)} O documento associado ao DID tem um bloco de autenticação, com a chave pública do sujeito, e um bloco de serviço, com um \textit{endpoint} para troca de credenciais verificáveis, permitindo independência de um registo centralizado:
 \end{enumerate}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\textwidth]{5-Figures/DID.png}
-    \caption{Exemplo de documento de DID com bloco de autenticação, chave pública, bloco de serviço e endpoint, como mencionado no ponto 4}
+    \caption{Exemplo de documento de DID com bloco de autenticação, chave pública, bloco de serviço e \textit{endpoint}, como mencionado no ponto 4}
     \label{fig:did-example}
 \end{figure}
 
@@ -170,9 +170,9 @@ Para encontrar a ferramenta certa para identificar utilizadores de forma descent
 Preukschat e Reed definem em 2021 as seguintes categorias de métodos DID desenvolvidas a partir de agosto de 2020 \cite{preukschat2021self}:
 
 \begin{itemize}
-    \item \textbf{(Ledger-based DIDs)} Categoria original de DID methods que envolvem uma \textit{blockchain} ou outra DLT, que envolve todas as operações numa ledger pública distribuída na rede com assinatura com chave privada do próprio;
-    \item \textbf{(Ledger Middleware DIDs)} Melhoria dos Ledger-based DIDs, faz uso de uma camada intermédia entre o registo e o DID, de forma a que as transações possam ser agregadas para uma única entrada na tabela, otimizando o processo;
-    \item \textbf{(Peer DIDs)} DIDs que não necessitam de uma camada pública de registo, operando exclusivamente através de redes peer-to-peer, possibilitando apenas a partilha do DID com apenas um peer ou grupo de peers, dando uso do protocolo de partilha da rede para a transmissão do identificador;
+    \item \textbf{(Ledger-based DIDs)} Categoria original de DID \textit{methods} que envolvem uma \textit{blockchain} ou outra DLT, que envolve todas as operações numa \textit{ledger} pública distribuída na rede com assinatura com chave privada do próprio;
+    \item \textbf{(Ledger Middleware DIDs)} Melhoria dos \textit{Ledger-based DIDs}, faz uso de uma camada intermédia entre o registo e o DID, de forma a que as transações possam ser agregadas para uma única entrada na tabela, otimizando o processo;
+    \item \textbf{(Peer DIDs)} DIDs que não necessitam de uma camada pública de registo, operando exclusivamente através de redes \textit{peer-to-peer}, possibilitando apenas a partilha do DID com apenas um \textit{peer} ou grupo de \textit{peers}, dando uso do protocolo de partilha da rede para a transmissão do identificador;
     \item \textbf{(Static DIDs)} Categoria de DIDs que permite criação e resolução, mas não permite alterações ou desativação, criados deterministicamente a partir de uma chave pública;
     \item \textbf{(Alternative DIDs)} Inovações de categorias de DIDs que não são contempladas nas categorias anteriores.
 \end{itemize}
@@ -182,10 +182,10 @@ Alternativamente, Mazzocca et al. propõe uma categorização de DIDs focada no 
 \begin{itemize}
     \item \textbf{(Anywise DIDs)} Identificadores públicos partilháveis com grupos ilimitados, mesmo se não forem confiáveis;
     \item \textbf{(Pairwise DIDs)} DID apenas conhecido pelo sujeito e por outra entidade, com foco principal na privacidade a partir de DIDs únicos para cada ligação sujeito-entidade, afastando possíveis ataques que usam a informação disponível para correlacionar dados com informação sensível;
-    \item \textbf{(N-wise DIDs)} Desenhados de forma a que só possam ser conhecidos por N número de entidades, incluindo o sujeito. Caso N seja dois, é considerado um Pairwise DID.
+    \item \textbf{(N-wise DIDs)} Desenhados de forma a que só possam ser conhecidos por N número de entidades, incluindo o sujeito. Caso N seja dois, é considerado um \textit{Pairwise DID}.
 \end{itemize}
 
-A distinção entre estes tipos de DIDs - em particular os Pairwise DIDs e Peer DIDs - é crítica para a arquitetura proposta neste trabalho, permitindo determinar de que forma a partilha de credenciais previne correlation attacks na rede Tor.
+A distinção entre estes tipos de DIDs - em particular os \textit{Pairwise DIDs} e \textit{Peer DIDs} - é crítica para a arquitetura proposta neste trabalho, permitindo determinar de que forma a partilha de credenciais previne \textit{correlation attacks} na rede Tor.
 
 \section{Fundamentos Algébricos}
 
@@ -250,6 +250,7 @@ De acordo com a relação estrutural entre os grupos $G_1$ e $G_2$ e a existênc
 \end{itemize}
 
 \subsubsection{Garantias de Segurança e a Curva BLS12-381}
+\label{ssec:curva_bls12381}
 
 A segurança dos esquemas baseados em emparelhamentos simétricos assenta no Problema de Diffie-Hellman Bilinear (BDH) \cite{boneh2001ibe}. Dado um gerador de parâmetros que produz $\langle G_1, G_T, e, P \rangle$, o problema consiste em computar $e(P,P)^{abc} \in G_T$ a partir da instância $(P, aP, bP, cP)$ para $a,b,c \in \mathbb{Z}_p$. A hipótese BDH assume que nenhum algoritmo de tempo polinomial tem vantagem não-negligenciável $Adv(q)$ na resolução deste problema \cite{boneh2001ibe}.
 
@@ -345,7 +346,7 @@ O esquema de ElGamal possui duas propriedades estruturais determinantes para a c
 
 A adaptação do esquema de ElGamal para grupos de curvas elípticas surge da necessidade de aumentar a velocidade do processo de encriptação e desencriptação dos esquemas de criptografia de chave pública \cite{ieee5620105_ecelgamal}.
 
-A transição para curvas elípticas reduz a dimensão das chaves e o custo computacional. Além das melhorias de eficiência, permite a sua integração direta com esquemas de criptografia limiar, cujo funcionamento descentralizado e mecanismos de partilha de segredos serão aprofundados na secção dedicada a esse tema \cite{ieee5620105_ecelgamal}.
+A transição para curvas elípticas reduz a dimensão das chaves e o custo computacional. Além das melhorias de eficiência, permite a sua integração direta com esquemas de criptografia limiar, cujo funcionamento descentralizado e mecanismos de partilha de segredos serão aprofundados na Secção~\ref{sec:threshold_cryptography} \cite{ieee5620105_ecelgamal}.
 
 \subsection{Verifiable Random Functions}
 
@@ -364,6 +365,7 @@ A noção formal de VRF foi introduzida por Micali, Rabin e Vadhan como uma tupl
 \end{itemize}
 
 \subsubsection{VRF de Dodis-Yampolskiy}
+\label{ssec:dy_vrf}
 
 Yevgeniy Dodis e Aleksandr Yampolskiy apresentam uma construção eficiente e simples de VRF baseada em grupos bilineares de ordem prima $p$, composta por três algoritmos \cite{dodis2005verifiable}:
 
@@ -444,6 +446,7 @@ Para verificar a prova $\pi = (c, s)$, qualquer entidade externa $V$ calcula $r'
 A segurança da transformação de Fiat-Shamir é provada no Modelo do Oráculo Aleatório (\textit{Random Oracle Model} - ROM), garantindo que a prova não-interativa resultante é publicamente verificável, transferível e computacionalmente equivalente ao protocolo interativo original \cite{fiatshamir1986how}.
 
 \subsubsection{Prova de Igualdade de Logaritmos Discretos}
+\label{ssec:dleq_prova}
 
 Uma \textit{Discrete Logarithm Equality Proof} ou DLEQ é uma NIZKP de igualdade de logaritmos discretos, que permite demonstrar que dois pares de elementos de um grupo têm o mesmo logaritmo discreto, sem o revelar \cite{rfc9497}. Esta prova foi desenvolvida por Chaum e Pedersen \cite{chaumpedersen1992wallet}, sendo mais tarde provada ZK por Jarecki et al. \cite{jarecki2014roundoptimal} e transformada em não interativa pela Heurística de Fiat-Shamir \cite{fiatshamir1986how}.
 
@@ -462,6 +465,7 @@ A prova de Schnorr não é suficiente em casos onde queremos provar que o mesmo 
 A DLEQ é usada no Dittor para ligar o pseudónimo à credencial emitida pelas CAs, com uma variante bilinear aplicável a sistemas com emparelhamentos bilineares.
 
 \section{Threshold Cryptography}
+\label{sec:threshold_cryptography}
 
 A criptografia limiar (\textit{Threshold Cryptography}) surge da necessidade de descentralizar a confiança em sistemas computacionais, distribuindo capacidades criptográficas (como desencriptação ou geração de assinaturas) por um conjunto de $n$ entidades, de forma a eliminar pontos únicos de falha.
 
@@ -500,6 +504,7 @@ Dada a natureza de partilha de atributos secretos aprofundada por Shamir, a gera
 Formalmente, o DKG permite que um conjunto de $n$ servidores possa gerir cooperativamente um par de chaves pública e privada $(y,x)$, no qual a chave pública $y = g^x$ é conhecida por todos os participantes, mas a chave secreta $x \in \mathbb{Z}_q^*$ nunca é reconstruída ou armazenada numa única localização. Cada participante $i$ obtém apenas uma fração secreta $x_i$, garantindo a segurança do sistema enquanto o número de entidades comprometidas for inferior ao limiar $t$ \cite{gennaro2007secure}.
 
 \subsection{Pedersen's DKG e Verifiable Secret Sharing}
+\label{sub:pedersen_dkg}
 
 Torben Pedersen propõe o primeiro esquema de geração distribuída de chaves baseado em partilha de segredos verificáveis \cite{gennaro2007secure} como resposta à necessidade de um meio de partilha de segredos sem uma entidade central responsável pela partilha dos mesmos \cite{pedersen1991threshold}.
 

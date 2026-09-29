@@ -749,6 +749,22 @@
       % 2. Lazy Load the Language
       \AIDloadLanguage { \l__aid_render_lang_tl }
 
+      % 2b. Rebuild the tools sentence now that the correct render
+      %     language is loaded (AIDtoolsUsed may have run earlier,
+      %     at AtEndPreamble time, while the language was still the
+      %     package default, baking in the wrong connector word).
+      \seq_if_empty:NF \l__aid_tools_seq
+        {
+          \__aid_fetch_string:nN { and } \l_tmpa_tl
+          \tl_gset:Nx \g__aid_tools_sentence_tl
+            {
+              \exp_not:N \seq_use:Nnnn \exp_not:N \l__aid_tools_seq
+                { \ \exp_not:V \l_tmpa_tl \  }
+                { ,\  }
+                { ,\ \exp_not:V \l_tmpa_tl \  } .
+            }
+        }
+
       % 3. Setup Context
       \__aid_calc_author_context:n { #3 }
       
